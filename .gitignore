@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Données téléchargées ou dérivées (volumineuses, non versionnées)
+data/
+*.nc
+*.npz
+*.csv.gz
