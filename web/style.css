@@ -102,6 +102,7 @@ select {
 }
 .day-strip .bar.selected .fill { opacity: 1; }
 .day-strip .bar.today .lbl { color: var(--text); font-weight: 700; }
+.stale { color: var(--warn-text); }
 .day-strip .lbl { position: absolute; left: 0; right: 0; bottom: 0; font-size: 10.5px; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; }
 input[type="range"] { width: 100%; accent-color: var(--accent); }
 .legend { margin-top: 6px; }
@@ -146,5 +147,5 @@ td:nth-child(n+2) { font-variant-numeric: tabular-nums; }
   .bottom { padding: 10px; }
   #legend-text { display: none; }
   .day-strip { height: 44px; margin-top: 4px; }
-  .panel { top: auto; height: 62vh; left: 10px; right: 10px; width: auto; }
+  .panel { top: auto; height: 62vh; height: 62dvh; left: 10px; right: 10px; width: auto; }
 }

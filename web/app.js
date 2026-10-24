@@ -10,6 +10,7 @@ const MODES = {
 };
 const DAY_FMT = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 const SHORT_FMT = new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric" });
+const UPDATE_FMT = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
 
 const state = { mode: "indice", sp: 0, day: 0, opacity: 0.8 };
 let D;                 // loaded data
@@ -19,6 +20,14 @@ const store = {
   get(k, def) { try { const v = localStorage.getItem("mushroomator." + k); return v === null ? def : JSON.parse(v); } catch { return def; } },
   set(k, v) { try { localStorage.setItem("mushroomator." + k, JSON.stringify(v)); } catch { /* private mode */ } },
 };
+
+// Date of the phone (YYYY-MM-DD): the stored map may be opened offline, days after its last update.
+function localToday() {
+  const d = new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+const isReplay = () => D.weather.source.startsWith("Rejeu");
+const refDay = () => (isReplay() ? D.weather.today : localToday());     // the day called "aujourd'hui"
 
 async function loadJSON(url) {
   const r = await fetch(url, { cache: "no-cache" });
@@ -85,7 +94,13 @@ function baseLayers() {
 function initMap() {
   const [w, s, e, n] = D.grid.bounds;
   map = L.map("map", { zoomControl: false, maxBounds: [[s - 1, w - 1], [n + 1, e + 1]], minZoom: 7 });
-  map.fitBounds([[s, w], [n, e]]);
+  const view = store.get("view", null);
+  if (view && [view.lat, view.lng, view.zoom].every(Number.isFinite)) map.setView([view.lat, view.lng], view.zoom);
+  else map.fitBounds([[s, w], [n, e]]);
+  map.on("moveend", () => {
+    const c = map.getCenter();
+    store.set("view", { lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5), zoom: map.getZoom() });
+  });
   const bases = baseLayers();
   const chosen = store.get("base", "Plan IGN");
   (bases[chosen] || bases["Plan IGN"]).addTo(map);
@@ -133,8 +148,7 @@ function render() {
 }
 
 function dayLabel(iso) {
-  const today = D.weather.today;
-  const diff = Math.round((new Date(iso) - new Date(today)) / 86400000);
+  const diff = Math.round((new Date(iso) - new Date(refDay())) / 86400000);
   const names = { "-1": "Hier", 0: "Aujourd'hui", 1: "Demain" };
   return names[diff] ?? DAY_FMT.format(new Date(iso + "T12:00:00"));
 }
@@ -145,9 +159,12 @@ function updateDayUI() {
   const diff = Math.round((new Date(iso) - new Date(D.weather.today)) / 86400000);
   const label = dayLabel(iso), full = DAY_FMT.format(new Date(iso + "T12:00:00"));
   $("day-label").textContent = label === full ? full.charAt(0).toUpperCase() + full.slice(1) : `${label} · ${full}`;
-  const replay = D.weather.source.startsWith("Rejeu");
-  $("day-note").textContent = replay ? "rejeu d'une date passée (météo observée)"
+  const replay = isReplay();
+  const note = replay ? "rejeu d'une date passée (météo observée)"
     : diff > 0 ? "prévision" : diff < 0 ? "météo observée" : "en partie prévu";
+  const stale = !replay && D.weather.today < localToday();
+  $("day-note").innerHTML = note + (stale
+    ? ` · <span class="stale">mise à jour du ${UPDATE_FMT.format(new Date(D.weather.today + "T12:00:00"))}</span>` : "");
   document.querySelectorAll("#day-strip .bar").forEach((b, k) => b.classList.toggle("selected", k === state.day));
 }
 
@@ -167,7 +184,7 @@ function buildDayStrip() {
     bar.style.setProperty("--h", String(Math.max(4, pct ?? 0)));
     bar.title = `${DAY_FMT.format(date)} : conditions ${pct ?? "—"}/100 en habitat favorable`;
     bar.setAttribute("aria-label", bar.title);
-    if (iso === D.weather.today) bar.classList.add("today");
+    if (iso === refDay()) bar.classList.add("today");
     bar.innerHTML = `<span class="fill"></span><span class="lbl">${date.getDate()}</span>`;
     bar.addEventListener("click", () => { state.day = k; $("day").value = k; updateDayUI(); render(); });
     strip.appendChild(bar);
@@ -318,7 +335,8 @@ async function init() {
   state.mode = store.get("mode", "indice");
   if (weather) {
     $("day").max = weather.dates.length - 1;
-    state.day = Math.max(0, weather.dates.indexOf(weather.today));
+    const k = weather.dates.indexOf(refDay());
+    state.day = k >= 0 ? k : Math.max(0, weather.dates.indexOf(weather.today));
     $("day").value = state.day;
   } else {
     $("day").hidden = true;
@@ -365,11 +383,23 @@ function wireUI() {
   $("safety-ok").addEventListener("click", () => { $("safety").hidden = true; store.set("safety-ok", true); });
 }
 
+// Offline mode, registered after the first load: the worker then copies the files from the HTTP cache
+// instead of downloading them a second time.
+function registerWorker() {
+  if (!("serviceWorker" in navigator) || !window.isSecureContext) return;
+  navigator.serviceWorker.register("sw.js").catch(() => { /* optional */ });
+  navigator.serviceWorker.ready.then((reg) => reg.active?.postMessage({
+    tiles: [...document.querySelectorAll("img.leaflet-tile")].map((img) => img.src) }));
+}
+
+const loadedAt = Date.now();
 init().catch((err) => {
   console.error(err);
   $("loading").textContent = "Impossible de charger les données : " + err.message;
-});
+}).finally(registerWorker);
 
-if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
-  navigator.serviceWorker.register("sw.js").catch(() => { /* optional */ });
-}
+// A tab left open on the phone: back in the foreground on a later day, reload to get the day's map.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible" || !navigator.onLine || !D?.weather || isReplay()) return;
+  if (D.weather.today < localToday() && Date.now() - loadedAt > 30 * 60000) location.reload();
+});

@@ -1,5 +1,6 @@
 """The map is computed by web/model.js; it must match mushroomator/predict.py."""
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -72,3 +73,24 @@ def test_web_files_exist():
     for f in ("index.html", "app.js", "model.js", "style.css", "sw.js", "manifest.webmanifest", "icons/icon-192.png",
               "vendor/leaflet/leaflet.js"):
         assert (Path(ROOT) / "web" / f).exists(), f
+
+
+def test_offline_files_and_version(tmp_path, monkeypatch):
+    """sw.js lists the files to keep offline; its version follows the application and data, not the daily weather."""
+    monkeypatch.setattr(site, "SITE_DIR", tmp_path / "site")
+    sw = tmp_path / "site" / "sw.js"
+    version = lambda: re.search(r'const VERSION = "([^"]+)";', sw.read_text()).group(1)  # noqa: E731
+    site.build(RHONE_ALPES.key, {"today": "2023-10-12"}, log=lambda *a: None)
+    first = version()
+    files = json.loads(re.search(r"const FILES = (\[.*\]);", sw.read_text()).group(1))
+    assert {"./", "app.js", "data/rhone-alpes/weather.json", "data/rhone-alpes/host.u8.gz"} <= set(files)
+    assert "data/rhone-alpes/forest.u8.gz" not in files          # not read by the web application
+    assert all((tmp_path / "site" / f).is_file() for f in files if f != "./")
+    site.build(RHONE_ALPES.key, {"today": "2023-10-13"}, log=lambda *a: None)
+    assert version() == first != "mushroomator-dev"
+    web = tmp_path / "web"
+    shutil.copytree(ROOT / "web", web)
+    (web / "app.js").write_text((web / "app.js").read_text() + "\n// nouvelle version\n")
+    monkeypatch.setattr(site, "WEB_DIR", web)
+    site.build(RHONE_ALPES.key, log=lambda *a: None)
+    assert version() != first

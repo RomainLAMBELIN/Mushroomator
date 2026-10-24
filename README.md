@@ -7,7 +7,26 @@ Carte de chaleur indicative des champignons comestibles, espèce par espèce, ca
 
 > **Outil indicatif, jamais d'identification.** La carte dit où et quand chercher, pas si un champignon est comestible. Faites toujours contrôler votre cueillette par un pharmacien ou un mycologue. En cas de symptômes après un repas de champignons, appelez le 15 ou un centre antipoison.
 
-## Utilisation quotidienne
+## Sur le téléphone, sans rien installer
+
+**Adresse : https://romainlambelin.github.io/Mushroomator/** (une fois la mise en ligne ci-dessous faite).
+
+- La carte s'ouvre dans le navigateur du téléphone (Safari, Chrome, Firefox) : pas de magasin d'applications, pas d'ordinateur à laisser allumé. La météo est mise à jour **chaque matin** par GitHub.
+- Choisissez l'**espèce** et le **jour** (J-7 à J+7) ; la frise montre les conditions moyennes de chaque jour. **Indice** = habitat × conditions ; **Habitat** = arbres-hôtes, altitude, sol ; **Conditions** = météo comparée aux jours habituels de la saison.
+- **Touchez** la carte pour voir le détail du calcul et la météo du secteur ; le bouton ◎ centre la carte sur votre position.
+- **En forêt sans réseau** : la carte, les données de la dernière visite et les fonds de carte déjà affichés restent disponibles. Si la météo enregistrée date d'un jour précédent, la carte l'indique (« mise à jour du … »). Avec un réseau trop faible, elle s'affiche au bout de 4 secondes avec la dernière météo enregistrée.
+- Volume : ~4,4 Mo à la première visite (forêts, relief, sols), puis ~60 Ko par jour.
+- Facultatif : *Ajouter à l'écran d'accueil* (Safari : bouton Partager ; Chrome : menu ⋮) crée une icône qui ouvre la carte en plein écran. Ce n'est qu'un raccourci, rien n'est installé. Sur iPhone, Safari efface les données d'un site qu'on n'a pas ouvert depuis 7 jours, sauf s'il est sur l'écran d'accueil : ouvrez la carte avant de partir si vous ne l'avez pas consultée depuis une semaine.
+
+### Mise en ligne sur GitHub Pages (une seule fois)
+
+1. Rendre le dépôt public : *Settings → General → Danger Zone → Change repository visibility → Public* (GitHub Pages est gratuit pour un dépôt public).
+2. *Settings → Pages → Build and deployment → Source* : **GitHub Actions**.
+3. *Actions → Mise à jour de la carte → Run workflow* (~10 minutes). L'adresse s'affiche ensuite dans *Settings → Pages* et dans le résumé du workflow.
+
+Ensuite, tout est automatique ([`.github/workflows/carte.yml`](.github/workflows/carte.yml)) : chaque matin (lancement à 4 h 17 UTC, carte en ligne vers 5 h 30 en hiver et 6 h 30 en été ; GitHub retarde parfois les tâches planifiées) et à chaque modification de l'application, le workflow lance les tests, télécharge la météo puis publie la carte. Si une étape échoue, la carte de la veille reste en ligne et l'onglet *Actions* montre l'erreur (*Re-run jobs* pour relancer). GitHub suspend les tâches planifiées d'un dépôt public resté 60 jours sans modification : un clic sur *Enable workflow* dans l'onglet *Actions* les relance.
+
+## Sur un ordinateur (facultatif)
 
 Prérequis : Python ≥ 3.11.
 
@@ -20,19 +39,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m mushroomator serve    # puis ouvrir http://127.0.0.1:8000
 ```
 
-`update` télécharge pour 352 points de la région les 92 derniers jours et 8 jours de prévision (≈ 2 500 à 2 800 appels, sous la limite gratuite d'Open-Meteo de 10 000 par jour) et prépare le dossier `site/`. Le résultat est mis en cache pour la journée ; `--force` le retélécharge.
-
-Sur la carte :
-- choisissez l'**espèce** et le **jour** (J-7 à J+7) ; la frise montre les conditions moyennes de chaque jour ;
-- **Indice** = habitat × conditions ; **Habitat** = arbres-hôtes, altitude, sol ; **Conditions** = météo comparée aux jours habituels de la saison ;
-- **cliquez** n'importe où pour voir le détail du calcul et la météo du secteur ;
-- le bouton ◎ centre la carte sur votre position.
-
-### Sur le téléphone
-
-- **Même réseau Wi-Fi** : `python -m mushroomator serve --host 0.0.0.0`, puis ouvrez `http://<adresse-de-l'ordinateur>:8000` sur le téléphone.
-- **Depuis n'importe où, mise à jour automatique** : le workflow [`.github/workflows/carte.yml`](.github/workflows/carte.yml) met la carte à jour chaque matin et la publie sur GitHub Pages. Pour l'activer : *Settings → Pages → Source : GitHub Actions*, puis créez la variable de dépôt `MUSHROOMATOR_PAGES` = `true` (*Settings → Secrets and variables → Actions → Variables*). GitHub Pages est gratuit pour un dépôt public ; pour un dépôt privé, il faut une offre payante, ou alors un hébergeur statique gratuit (Netlify, Cloudflare Pages) qui publie le dossier `site/`.
-- Une fois la page ouverte en HTTPS, « Ajouter à l'écran d'accueil » l'installe comme une application. Elle reste consultable sans réseau en forêt, avec les données et les fonds de carte déjà vus.
+`update` télécharge pour 352 points de la région les 92 derniers jours et 8 jours de prévision (≈ 2 500 à 2 800 appels, sous la limite gratuite d'Open-Meteo de 10 000 par jour) et prépare le dossier `site/`. Le résultat est mis en cache pour la journée ; `--force` le retélécharge. Avec `serve --host 0.0.0.0`, un téléphone du même réseau Wi-Fi peut ouvrir `http://<adresse-de-l'ordinateur>:8000`, mais sans le mode hors-ligne ni la localisation, qui exigent une adresse HTTPS.
 
 ### Rejouer une date passée
 

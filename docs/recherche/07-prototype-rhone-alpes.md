@@ -11,7 +11,8 @@ Premier prototype complet pour un usage personnel et gratuit : carte web (utilis
 - **Frise des 15 jours** : conditions moyennes en habitat favorable, pour repérer le meilleur jour.
 - **Clic sur la carte** : décomposition complète du score (essence dominante, altitude, pH, effet de chaque variable météo) et graphiques de pluie et de température du secteur (45 jours passés + prévision).
 - Sécurité : avertissement au premier lancement, confusions dangereuses par espèce, rappel des règles de cueillette.
-- Hors-ligne : l'application et les dernières données restent disponibles sans réseau, ainsi que les fonds de carte déjà consultés (jusqu'à 1 500 tuiles).
+- **Sur téléphone, sans installation** : site statique publié sur GitHub Pages et mis à jour chaque matin par GitHub Actions (tests, météo, déploiement).
+- Hors-ligne : l'application, les dernières données et les fonds de carte déjà consultés (jusqu'à 1 500 tuiles) restent disponibles sans réseau. Les jours sont nommés d'après la date du téléphone, avec une mention quand la météo enregistrée date d'un jour précédent.
 
 ## 7.2 Architecture
 
@@ -20,7 +21,8 @@ Premier prototype complet pour un usage personnel et gratuit : carte web (utilis
 | `assets/regions/rhone-alpes/` | essence dominante (BD Forêt V2 rasterisée à 50 m puis agrégée), couverture forestière, altitude (Copernicus DEM, pas de 10 m), pH 0–30 cm (SoilGrids) ; 5,3 Mo | une fois (`python -m mushroomator layers`) |
 | `assets/models/*.json` | modèles de déclenchement exportés en tables (une courbe par variable) | une fois par an (`train`) |
 | `assets/validation/rhone-alpes.json` | validation de l'habitat, tables d'hôtes calibrées, rejeu des saisons | après chaque entraînement (`validate`) |
-| `site/data/rhone-alpes/weather.json` | météo de 352 points (grille de 0,2°) : 92 jours passés + 8 jours de prévision Open-Meteo, variables du modèle ; ~300 Ko | chaque jour (`update`) |
+| `site/data/rhone-alpes/weather.json` | météo de 352 points (grille de 0,2°) : 92 jours passés + 8 jours de prévision Open-Meteo, variables du modèle ; ~300 Ko (~60 Ko compressés) | chaque jour (`update`, lancé par GitHub Actions) |
+| `site/sw.js` | cache hors-ligne : tous les fichiers du site (~4,4 Mo) enregistrés après la première visite ; une nouvelle version est téléchargée en arrière-plan puis utilisée à l'ouverture suivante ; météo : réseau d'abord, dernière météo enregistrée si le réseau ne répond pas en 4 s | version recalculée à chaque génération du site (hors météo) |
 | `web/` | application (Leaflet, calcul de l'indice dans le navigateur) | — |
 
 Le calcul de l'indice se fait **dans le navigateur** : la carte entière (3,3 M de pixels) est recalculée en ~0,15 s. La température est ramenée au niveau de la mer sur la grille météo puis redescendue à l'altitude de chaque pixel (−0,65 °C/100 m) : en montagne, deux versants voisins n'ont donc pas les mêmes conditions. Un test automatique vérifie que le calcul JavaScript donne les mêmes valeurs que le calcul Python (écart < 0,002).

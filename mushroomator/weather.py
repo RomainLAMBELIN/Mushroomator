@@ -50,6 +50,9 @@ def fetch(region, day=None, force=False, log=print):
         return json.loads(gzip.decompress(cache.read_bytes()))
     lons, lats = weather_axes(region)
     points = [(float(la), float(lo)) for la in lats for lo in lons]
+    # explicit dates: every batch covers the same days, even when the download runs across midnight
+    start = day - dt.timedelta(days=PAST_DAYS)
+    dates = [(start + dt.timedelta(days=k)).isoformat() for k in range(PAST_DAYS + FORECAST_DAYS)]
     calls_per_request = BATCH * math.ceil((PAST_DAYS + FORECAST_DAYS) / 14)
     pause = 60.0 * calls_per_request / MAX_CALLS_PER_MINUTE
     results = []
@@ -57,14 +60,17 @@ def fetch(region, day=None, force=False, log=print):
         chunk = points[k:k + BATCH]
         params = {"latitude": ",".join(f"{p[0]:.4f}" for p in chunk), "longitude": ",".join(f"{p[1]:.4f}" for p in chunk),
                   "daily": "precipitation_sum,temperature_2m_mean,temperature_2m_max",
-                  "past_days": PAST_DAYS, "forecast_days": FORECAST_DAYS, "timezone": TIMEZONE}
+                  "start_date": dates[0], "end_date": dates[-1], "timezone": TIMEZONE}
         d = net.get_json(API, params=params)
-        results += d if isinstance(d, list) else [d]
+        batch = d if isinstance(d, list) else [d]
+        if any(r["daily"]["time"] != dates for r in batch):
+            raise RuntimeError(f"Open-Meteo : jours inattendus dans la réponse (attendu {dates[0]} → {dates[-1]})")
+        results += batch
         log(f"  météo : {len(results)}/{len(points)} points")
         if k + BATCH < len(points):
             time.sleep(pause)
     raw = {"day": day.isoformat(), "lons": lons.tolist(), "lats": lats.tolist(),
-           "dates": results[0]["daily"]["time"],
+           "dates": dates,
            "elev": [r["elevation"] for r in results],
            "rr": [r["daily"]["precipitation_sum"] for r in results],
            "tg": [r["daily"]["temperature_2m_mean"] for r in results],

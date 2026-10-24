@@ -1,14 +1,19 @@
-// Offline support: application shell and data are cached; map tiles already viewed are kept (up to MAX_TILES)
-// so that the map remains usable in the forest without network.
-const VERSION = "mushroomator-v1";
+// Offline support: every file of the site is kept so that the map remains usable in the forest without network,
+// as well as the map tiles already viewed (up to MAX_TILES).
+// VERSION and FILES are written by the build (mushroomator/site.py): a new version of the application or of its data
+// is downloaded in full by the browser in the background, then replaces the previous one at the next opening.
+const VERSION = "mushroomator-dev";
+const FILES = ["./"];
 const TILES = "mushroomator-tiles";
 const MAX_TILES = 1500;
-const SHELL = ["./", "index.html", "style.css", "app.js", "model.js", "manifest.webmanifest", "icons/icon.svg",
-  "icons/icon-192.png", "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css"];
+const NETWORK_TIMEOUT_MS = 4000;     // weak signal: answer with the stored weather after this delay
 const TILE_HOSTS = ["data.geopf.fr", "tile.opentopomap.org", "tile.openstreetmap.org"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // "no-cache": revalidated with the server, so unchanged files just loaded by the page are not downloaded again
+  event.waitUntil(caches.open(VERSION)
+    .then((c) => c.addAll(FILES.map((f) => new Request(f, { cache: "no-cache" }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {
@@ -17,27 +22,26 @@ self.addEventListener("activate", (event) => {
     .then(() => self.clients.claim()));
 });
 
-async function networkFirst(request) {
-  const cache = await caches.open(VERSION);
-  try {
-    const response = await fetch(request);
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  } catch (err) {
-    const cached = await cache.match(request);
-    if (cached) return cached;
-    throw err;
-  }
+async function fetchAndKeep(request) {
+  const response = await fetch(request);
+  if (response.ok) await (await caches.open(VERSION)).put(request, response.clone());
+  return response;
 }
 
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(VERSION);
-  const cached = await cache.match(request);
-  const update = fetch(request).then((response) => {
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  }).catch(() => cached);
-  return cached || update;
+// The weather changes every day: from the network when it answers in time, otherwise the last one stored.
+async function networkFirst(event) {
+  const network = fetchAndKeep(event.request);
+  event.waitUntil(network.catch(() => null));        // keeps downloading after a timeout, for the next opening
+  const cached = await caches.match(event.request);
+  if (!cached) return network;
+  const late = new Promise((resolve) => setTimeout(() => resolve(cached), NETWORK_TIMEOUT_MS));
+  return Promise.race([network.catch(() => cached), late]);
+}
+
+// Application and layers: the stored version, consistent with each other until the next version is installed.
+async function cacheFirst(request) {
+  const cached = await caches.match(request, { ignoreSearch: request.mode === "navigate" });
+  return cached || fetchAndKeep(request);
 }
 
 async function tile(request) {
@@ -53,14 +57,20 @@ async function tile(request) {
   return response;
 }
 
+// Tiles displayed before this worker was installed (first visit): stored as well, from the HTTP cache.
+self.addEventListener("message", (event) => {
+  const urls = (event.data?.tiles || []).filter((u) => TILE_HOSTS.some((h) => new URL(u).hostname.endsWith(h)));
+  event.waitUntil(Promise.all(urls.map((u) => tile(new Request(u, { mode: "cors", credentials: "omit" })).catch(() => null))));
+});
+
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET") return;
   if (TILE_HOSTS.some((h) => url.hostname.endsWith(h))) {
     event.respondWith(tile(event.request));
-  } else if (url.origin === location.origin && url.pathname.endsWith(".json")) {
-    event.respondWith(networkFirst(event.request));     // weather and models: freshest available
+  } else if (url.origin === location.origin && url.pathname.endsWith("/weather.json")) {
+    event.respondWith(networkFirst(event));
   } else if (url.origin === location.origin) {
-    event.respondWith(staleWhileRevalidate(event.request));
+    event.respondWith(cacheFirst(event.request));
   }
 });

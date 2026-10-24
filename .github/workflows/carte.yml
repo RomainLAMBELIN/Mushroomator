@@ -1,11 +1,12 @@
-# Daily weather update and publication of the map on GitHub Pages.
-# Runs on schedule only once the repository variable MUSHROOMATOR_PAGES is set to "true"
-# (Settings → Secrets and variables → Actions → Variables) and Pages uses "GitHub Actions" as source.
+# Daily weather update and publication of the map on GitHub Pages, also run when the application changes.
+# One-time setting: Settings → Pages → Source: "GitHub Actions". Until then, only the tests run.
 name: Mise à jour de la carte
 
 on:
   schedule:
     - cron: "17 4 * * *"     # every day at 04:17 UTC
+  push:
+    paths: ["web/**", "mushroomator/**", "assets/**", "pyproject.toml", ".github/workflows/carte.yml"]
   workflow_dispatch:
 
 permissions:
@@ -19,22 +20,50 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || vars.MUSHROOMATOR_PAGES == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.pages.outputs.publish }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.13"
           cache: pip
-      - run: pip install -e .
-      - run: python -m mushroomator update
-      - uses: actions/upload-pages-artifact@v3
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest -q
+
+      - name: GitHub Pages est-il activé ?
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          default=$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)
+          source=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type 2>/dev/null) || source=""
+          echo "day=$(TZ=Europe/Paris date +%F)" >> "$GITHUB_OUTPUT"   # same day as mushroomator.weather.fetch
+          if [ "$GITHUB_REF_NAME" != "$default" ]; then
+            echo "::notice::Branche $GITHUB_REF_NAME : tests seulement, la carte est publiée depuis $default."
+          elif [ "$source" != "workflow" ]; then
+            echo "::warning title=Carte non publiée::Activez GitHub Pages (Settings → Pages → Source : GitHub Actions), puis relancez ce workflow."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # weather downloaded once a day: a later run on the same day (change of the application) reuses it
+      - if: steps.pages.outputs.publish == 'true'
+        uses: actions/cache@v4
+        with:
+          path: data/weather
+          key: meteo-${{ steps.pages.outputs.day }}
+      - if: steps.pages.outputs.publish == 'true'
+        run: python -m mushroomator update
+      - if: steps.pages.outputs.publish == 'true'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: site
 
   deploy:
     needs: build
+    if: needs.build.outputs.publish == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
