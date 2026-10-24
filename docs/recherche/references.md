@@ -2,7 +2,7 @@
 
 [← Retour au sommaire](README.md)
 
-Les DOI ont été vérifiés auprès de Crossref le 24/10/2026.
+Les DOI ont été vérifiés auprès de Crossref le 24/10/2026 (le 25/10/2026 pour les références ajoutées avec le chapitre 8).
 
 ## Écologie et phénologie de la fructification
 
@@ -28,13 +28,18 @@ Les DOI ont été vérifiés auprès de Crossref le 24/10/2026.
 
 ## Prédiction de la fructification et de la productivité
 
+- Bonet J.A., Palahí M., Colinas C., Pukkala T., Fischer C.R., Miina J., Martínez de Aragón J. (2010). Modelling the production and species richness of wild mushrooms in pine forests of the Central Pyrenees in northeastern Spain. *Canadian Journal of Forest Research* 40(2):347–356. https://doi.org/10.1139/X09-198
 - Capinha C. (2019). Predicting the timing of ecological phenomena using dates of species occurrence records: a methodological approach and test case with mushrooms. *International Journal of Biometeorology* 63:1015–1024. https://doi.org/10.1007/s00484-019-01714-0
 - Capinha C. et al. (2024). Using citizen science data for predicting the timing of ecological phenomena across regions. *BioScience* 74(6):383–392. https://doi.org/10.1093/biosci/biae041
+- Martínez de Aragón J., Bonet J.A., Fischer C.R., Colinas C. (2007). Productivity of ectomycorrhizal and selected edible saprotrophic fungi in pine forests of the pre-Pyrenees mountains, Spain: predictive equations for forest management of mycological resources. *Forest Ecology and Management* 252:239–256. https://doi.org/10.1016/j.foreco.2007.06.040
 - Martínez-Rodrigo R. et al. (2024). Assessment of mycological possibility using machine learning models for effective inclusion in sustainable forest management. *Sustainability* 16(13):5656. https://doi.org/10.3390/su16135656
 - Morera A., Martínez de Aragón J., Bonet J.A., Liang J., de-Miguel S. (2021). Performance of statistical and machine learning-based methods for predicting biogeographical patterns of fungal productivity in forest ecosystems. *Forest Ecosystems* 8:21. https://doi.org/10.1186/s40663-021-00297-w
 - Morera A., Martínez de Aragón J., De Cáceres M., Bonet J.A., de-Miguel S. (2022). Historical and future spatially-explicit climate change impacts on mycorrhizal and saprotrophic macrofungal productivity in Mediterranean pine forests. *Agricultural and Forest Meteorology* 319:108918. https://doi.org/10.1016/j.agrformet.2022.108918
 - Morera A. et al. (2024). Analysis of climate change impacts on the biogeographical patterns of species-specific productivity of socioeconomically important edible fungal species in Mediterranean forest ecosystems. *Ecological Informatics* 81:102557. https://doi.org/10.1016/j.ecoinf.2024.102557
 - Somfalvi-Tóth K., Jócsák I., Pál-Fám F. (2024). Verification study on how macrofungal fruitbody formation can be predicted by artificial neural network. *Scientific Reports* 14. https://doi.org/10.1038/s41598-023-50638-8
+- Tahvanainen V., Miina J., Kurttila M., Salo K. (2016). Modelling the yields of marketed mushrooms in *Picea abies* stands in eastern Finland. *Forest Ecology and Management* 362:79–88. https://doi.org/10.1016/j.foreco.2015.11.040
+- Thers H., Brunbjerg A.K., Læssøe T., Ejrnæs R., Bøcher P.K., Svenning J.-C. (2017). Lidar-derived variables as a proxy for fungal species richness and composition in temperate Northern Europe. *Remote Sensing of Environment* 200:102–113. https://doi.org/10.1016/j.rse.2017.08.011
+- Tomao A., Bonet J.A., Martínez de Aragón J., de-Miguel S. (2017). Is silviculture able to enhance wild forest mushroom resources? Current knowledge and future perspectives. *Forest Ecology and Management* 402:102–114. https://doi.org/10.1016/j.foreco.2017.07.039
 
 ## Méthodes de modélisation de distribution
 
@@ -67,6 +72,8 @@ Les DOI ont été vérifiés auprès de Crossref le 24/10/2026.
 - Cornes R.C. et al. (2018). An ensemble version of the E-OBS temperature and precipitation data sets. *Journal of Geophysical Research: Atmospheres* 123. https://doi.org/10.1029/2017JD028200
 - Gautier M., Moreau P.-A., Boury B., Richard F. (2022). Unravelling the French National Fungal Database: geography, temporality, taxonomy and ecology of the recorded diversity. *Journal of Fungi* 8(9):926. https://doi.org/10.3390/jof8090926
 - Giannetti F. et al. (2026). A gridded dataset of European Forest Types to support forest monitoring, modelling and reporting. *Earth System Science Data* 18:6435–6463. https://doi.org/10.5194/essd-18-6435-2026
+- Haesen S. et al. (2021). ForestTemp – Sub-canopy microclimate temperatures of European forests. *Global Change Biology* 27:6307–6319. https://doi.org/10.1111/gcb.15892
+- Lang N., Jetz W., Schindler K., Wegner J.D. (2023). A high-resolution canopy height model of the Earth. *Nature Ecology & Evolution* 7:1778–1789. https://doi.org/10.1038/s41559-023-02206-6
 - Muñoz-Sabater J. et al. (2021). ERA5-Land: a state-of-the-art global reanalysis dataset for land applications. *Earth System Science Data* 13:4349–4383. https://doi.org/10.5194/essd-13-4349-2021
 - Picek L. et al. (2022). Danish Fungi 2020 – Not just another image recognition dataset. *WACV 2022*. https://arxiv.org/abs/2103.10107
 - Poggio L. et al. (2021). SoilGrids 2.0: producing soil information for the globe with quantified spatial uncertainty. *SOIL* 7:217–240. https://doi.org/10.5194/soil-7-217-2021

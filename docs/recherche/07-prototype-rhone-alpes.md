@@ -75,10 +75,12 @@ Lecture (AUC : 0,5 = hasard, 1 = parfait) :
 
 ## 7.7 Prochaines étapes possibles
 
+La priorité est désormais de mieux situer les coins (le *où*) : voir le [chapitre 8](08-identifier-les-coins.md).
+
 1. Formulaire « trouvé / rien trouvé » enregistré sur le téléphone, pour mesurer la fiabilité réelle et calibrer l'indice.
 2. Pluie radar COMEPHORE (1 km) et humidité du sol SIM2 de Météo-France pour l'historique.
 3. Couche « hors forêt » pour les morilles (vergers, ripisylves, CORINE/OSO).
 4. Espèces de printemps et de prairie (mousseron de la Saint-Georges, coulemelle).
 5. Prévision à 14 jours (ensemble ECMWF) avec incertitude.
 
-[Bibliographie →](references.md)
+[Chapitre 8 : identifier les coins →](08-identifier-les-coins.md)

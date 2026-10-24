@@ -2,7 +2,7 @@
 
 *Rédigé le 24 octobre 2026. Objectif : déterminer comment construire une carte de chaleur de la probabilité de trouver des champignons comestibles, espèce par espèce, à partir de la météo passée et prévue, de l'humidité, des arbres, du sol et du relief.*
 
-> **Mise à jour :** un premier prototype pour Rhône-Alpes (usage personnel) a été réalisé à partir de ces conclusions : voir le [chapitre 7](07-prototype-rhone-alpes.md).
+> **Objectif du projet : un outil qui aide à identifier les coins à champignons** (où chercher à l'échelle du coin, et quand y aller). Un premier prototype pour Rhône-Alpes est en service ([chapitre 7](07-prototype-rhone-alpes.md)) : fiable pour le *quand*, pas encore pour le *où*. Les pistes pour situer les coins sont au [chapitre 8](08-identifier-les-coins.md).
 
 ## L'essentiel en une page
 
@@ -48,6 +48,7 @@ flowchart LR
 | [5. Étude de faisabilité](05-etude-de-faisabilite.md) | expérience réelle : 6 espèces, GBIF + E-OBS, résultats, limites |
 | [6. Architecture et feuille de route](06-architecture-et-feuille-de-route.md) | architecture technique, ordres de grandeur, risques, réglementation, phases du projet, décisions à prendre |
 | [7. Prototype Rhône-Alpes](07-prototype-rhone-alpes.md) | application réalisée (usage personnel), modèles retenus, validation sur les saisons 2011-2024, limites |
+| [8. Identifier les coins](08-identifier-les-coins.md) | objectif du projet : ce qui fait un coin à fine échelle, données vérifiées (LiDAR HD, observations précises), leviers, critères de réussite, feuille de route |
 | [Bibliographie](references.md) | articles (DOI vérifiés), données, services |
 
 ## Limites de ce dossier
