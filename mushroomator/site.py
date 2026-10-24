@@ -51,6 +51,7 @@ def build(region_key, weather=None, log=print):
             f.unlink()
     meta = json.loads((region_dir(region_key) / "layers.json").read_text())
     meta["files"] = {k: v for k, v in meta["files"].items() if k in WEB_LAYERS}
+    meta["departements"] = list(region.departments)        # limits the place search to the mapped departments
     for spec in meta["files"].values():
         shutil.copy2(region_dir(region_key) / spec["file"], data / spec["file"])
     (data / "layers.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))

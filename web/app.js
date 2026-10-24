@@ -102,6 +102,7 @@ function initMap() {
     store.set("view", { lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5), zoom: map.getZoom() });
   });
   const bases = baseLayers();
+  Object.values(bases).forEach((layer) => layer.on("tileload", (ev) => keepTile(ev.tile.src)));
   const chosen = store.get("base", "Plan IGN");
   (bases[chosen] || bases["Plan IGN"]).addTo(map);
   L.control.zoom({ position: "topright" }).addTo(map);
@@ -131,7 +132,159 @@ function initMap() {
   pixels = new Uint32Array(image.data.buffer);
   overlay = new CanvasOverlay(canvas, [[s, w], [n, e]], { opacity: state.opacity, interactive: false, className: "heat" });
   overlay.addTo(map);
-  map.on("click", (ev) => showDetails(ev.latlng));
+  map.on("click", (ev) => { if (Date.now() - search.closedAt > 500) showDetails(ev.latlng); });
+}
+
+// ------------------------------------------------------------------ place search ----
+// IGN Géoplateforme autocompletion (free, no key, Licence Ouverte): communes, hamlets, summits, passes, woods, addresses.
+const GEOCODER = "https://data.geopf.fr/geocodage/completion/";
+const KIND_LABELS = { administratif: "commune", municipality: "commune", street: "voie", housenumber: "adresse", locality: "lieu-dit" };
+const search = { places: [], shownFor: "", active: -1, timer: 0, controller: null, submitted: false, closedAt: 0 };
+let placeMarker;
+
+// "45.325, 5.764", "45.325 5.764" or "45,325 5,764": GPS coordinates, which also work offline.
+function parseCoordinates(text) {
+  const m = text.match(/^(-?\d{1,2}(?:\.\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:\.\d+)?)$/)
+    || text.match(/^(-?\d{1,2}(?:,\d+)?)\s*[;\s]\s*(-?\d{1,3}(?:,\d+)?)$/);
+  if (!m) return null;
+  let [lat, lon] = [m[1], m[2]].map((v) => Number(v.replace(",", ".")));
+  if (lat < lon) [lat, lon] = [lon, lat];         // longitude first: in this region latitudes are the larger numbers
+  return { name: `${lat.toFixed(5)}, ${lon.toFixed(5)}`, detail: "coordonnées GPS", lat, lon, zoom: 15, rank: 0 };
+}
+
+// Words without accents; "st"/"ste" as commonly typed for "saint"/"sainte"; short words (de, la, du…) ignored.
+const fold = (t) => t.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+const words = (t) => fold(t).split(/[^a-z0-9]+/).filter(Boolean);
+const queryWords = (t) => words(t).map((w) => ({ st: "saint", ste: "sainte" })[w] ?? w)
+  .filter((w) => w.length > 2 || /^\d+$/.test(w));
+
+function placeFromResult(r, address, query) {
+  const name = r.fulltext.split(",")[0].trim();
+  const tokens = words(`${name} ${r.city ?? ""}`);
+  // 0: every typed word is a word of the name or commune, 1: the start of one (word being typed), 2: otherwise
+  const match = query.every((w) => tokens.includes(w)) ? 0 : query.every((w) => tokens.some((t) => t.startsWith(w))) ? 1 : 2;
+  const types = r.poiType || [];
+  const commune = r.kind === "administratif" || r.kind === "municipality";
+  const natural = types.includes("élément topographique ou forestier") || types.includes("hydrographie");
+  const inhabited = types.includes("zone d'habitation") || r.kind === "locality";
+  const street = r.kind === "street" || r.kind === "housenumber";
+  // communes, then summits, passes, woods and lakes, then hamlets, then streets (first when a number is typed), then the rest
+  const rank = commune ? 0 : natural ? 1 : inhabited ? 2 : street ? (address ? 0 : 3) : 4;
+  const zoom = commune ? 13 : natural ? 14 : r.kind === "housenumber" ? 17 : street ? 16 : 15;
+  const detail = (KIND_LABELS[r.kind] ?? r.kind ?? "lieu") + (r.city && r.city !== name ? ` · ${r.city}` : "")
+    + (r.zipcode ? ` (${r.zipcode.slice(0, 2)})` : "");
+  return { name, detail, lat: r.y, lon: r.x, zoom, rank, match, key: `${name.toLowerCase()}|${r.zipcode ?? ""}` };
+}
+
+async function findPlaces(text, signal) {
+  const [w, s, e, n] = D.grid.bounds;
+  const inRegion = (p) => p.lon >= w && p.lon <= e && p.lat >= s && p.lat <= n;
+  const coords = parseCoordinates(text);
+  if (coords) return [coords].filter(inRegion);
+  const params = new URLSearchParams({ text, type: "PositionOfInterest,StreetAddress", maximumResponses: "15" });
+  if (D.layersMeta.departements?.length) params.set("terr", D.layersMeta.departements.join(","));
+  const r = await fetch(`${GEOCODER}?${params}`, { signal });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const address = /^\d/.test(text), query = queryWords(text), seen = new Set();
+  return ((await r.json()).results || []).filter((x) => x.fulltext && Number.isFinite(x.x) && Number.isFinite(x.y))
+    .map((x) => placeFromResult(x, address, query)).filter(inRegion)
+    // best match of the typed words first, then by kind; stable: keeps the geocoder's order within a group
+    .sort((a, b) => a.match - b.match || a.rank - b.rank)
+    .filter((p) => !seen.has(p.key) && seen.add(p.key)).slice(0, 8);
+}
+
+function showPlaces(places, note = "") {
+  const list = $("search-results"), input = $("search");
+  search.places = places;
+  search.active = -1;
+  list.replaceChildren(...places.map((p, k) => {
+    const li = document.createElement("li");
+    li.id = `place-${k}`;
+    li.setAttribute("role", "option");
+    li.setAttribute("aria-selected", "false");
+    li.append(Object.assign(document.createElement("strong"), { textContent: p.name }),
+      Object.assign(document.createElement("small"), { textContent: p.detail }));
+    li.addEventListener("click", () => goToPlace(p));
+    return li;
+  }));
+  if (note) list.append(Object.assign(document.createElement("li"), { className: "note", textContent: note }));
+  const open = places.length > 0 || note !== "";
+  list.hidden = !open;
+  $("top").classList.toggle("searching", open);
+  input.setAttribute("aria-expanded", String(open));
+  input.removeAttribute("aria-activedescendant");
+}
+
+function closePlaces() {
+  if ($("search-results").hidden) return false;
+  showPlaces([]);
+  return true;
+}
+
+function setActivePlace(k) {
+  const items = [...$("search-results").querySelectorAll("li[role=option]")];
+  if (!items.length) return;
+  search.active = (k + items.length) % items.length;
+  items.forEach((li, j) => li.setAttribute("aria-selected", String(j === search.active)));
+  $("search").setAttribute("aria-activedescendant", items[search.active].id);
+  items[search.active].scrollIntoView({ block: "nearest" });
+}
+
+async function runSearch() {
+  const text = $("search").value.trim();
+  search.controller?.abort();
+  if (text.length < 3 && !parseCoordinates(text)) { search.submitted = false; showPlaces([]); return; }
+  const controller = search.controller = new AbortController();
+  try {
+    const places = await findPlaces(text, controller.signal);
+    if (controller !== search.controller) return;              // a newer search has started
+    search.shownFor = text;
+    showPlaces(places, places.length ? "" : "Rien trouvé dans la zone couverte.");
+    if (search.submitted && places.length) goToPlace(places[0]);
+  } catch (err) {
+    if (err.name === "AbortError") return;
+    showPlaces([], "Recherche impossible sans réseau. Les coordonnées GPS (par exemple 45.325, 5.764) fonctionnent hors ligne.");
+  } finally {
+    if (controller === search.controller) search.submitted = false;
+  }
+}
+
+function goToPlace(p) {
+  closePlaces();
+  $("search").value = p.name;
+  $("search").blur();                                           // closes the phone keyboard
+  $("details").hidden = true;
+  if (placeMarker) placeMarker.remove();
+  // not interactive: touching the pin shows the details of the place, as anywhere on the map
+  placeMarker = L.marker([p.lat, p.lon], { interactive: false }).addTo(map)
+    .bindTooltip(p.name, { permanent: true, direction: "right", className: "place-label" });
+  map.setView([p.lat, p.lon], p.zoom);
+}
+
+function initSearch() {
+  const input = $("search");
+  input.addEventListener("input", () => {
+    if (!input.value && placeMarker) placeMarker.remove();
+    search.controller?.abort();                    // an answer for the previous text must not show up any more
+    clearTimeout(search.timer);
+    search.timer = setTimeout(runSearch, 250);
+  });
+  input.addEventListener("focus", () => { if (input.value.trim()) runSearch(); });
+  input.addEventListener("keydown", (ev) => {
+    if (ev.key === "ArrowDown") { ev.preventDefault(); setActivePlace(search.active + 1); }
+    else if (ev.key === "ArrowUp") { ev.preventDefault(); setActivePlace(search.active < 0 ? -1 : search.active - 1); }
+    else if (ev.key === "Escape") closePlaces();
+  });
+  $("search-form").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const text = input.value.trim();
+    if (search.places.length && search.shownFor === text) goToPlace(search.places[Math.max(0, search.active)]);
+    else { clearTimeout(search.timer); search.submitted = true; runSearch(); }
+  });
+  // touching the map closes the list (without also opening the details of that point)
+  document.addEventListener("pointerdown", (ev) => {
+    if (!$("top").contains(ev.target) && closePlaces()) search.closedAt = Date.now();
+  });
 }
 
 function render() {
@@ -345,6 +498,7 @@ async function init() {
   palette = buildPalette();
   $("ramp").style.background = `linear-gradient(to right, ${RAMP.map(([v, c]) => `rgb(${c.join(",")}) ${v * 100}%`).join(", ")})`;
   initMap();
+  initSearch();
   wireUI();
   setMode(state.mode);
   buildDayStrip();
@@ -386,10 +540,21 @@ function wireUI() {
 // Offline mode, registered after the first load: the worker then copies the files from the HTTP cache
 // instead of downloading them a second time.
 function registerWorker() {
+  if ("serviceWorker" in navigator && window.isSecureContext) navigator.serviceWorker.register("sw.js").catch(() => { /* optional */ });
+}
+
+// Tiles displayed on the map are handed over to the offline worker, which keeps a copy of them.
+const shownTiles = new Set();
+let tileTimer = 0;
+function keepTile(src) {
   if (!("serviceWorker" in navigator) || !window.isSecureContext) return;
-  navigator.serviceWorker.register("sw.js").catch(() => { /* optional */ });
-  navigator.serviceWorker.ready.then((reg) => reg.active?.postMessage({
-    tiles: [...document.querySelectorAll("img.leaflet-tile")].map((img) => img.src) }));
+  shownTiles.add(src);
+  clearTimeout(tileTimer);
+  tileTimer = setTimeout(() => {
+    const tiles = [...shownTiles];
+    shownTiles.clear();
+    navigator.serviceWorker.ready.then((reg) => reg.active?.postMessage({ tiles }));
+  }, 1500);
 }
 
 const loadedAt = Date.now();

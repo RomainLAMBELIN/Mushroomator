@@ -86,6 +86,8 @@ def test_offline_files_and_version(tmp_path, monkeypatch):
     assert {"./", "app.js", "data/rhone-alpes/weather.json", "data/rhone-alpes/host.u8.gz"} <= set(files)
     assert "data/rhone-alpes/forest.u8.gz" not in files          # not read by the web application
     assert all((tmp_path / "site" / f).is_file() for f in files if f != "./")
+    meta = json.loads((tmp_path / "site/data/rhone-alpes/layers.json").read_text())
+    assert set(meta["files"]) == set(site.WEB_LAYERS) and "38" in meta["departements"]
     site.build(RHONE_ALPES.key, {"today": "2023-10-13"}, log=lambda *a: None)
     assert version() == first != "mushroomator-dev"
     web = tmp_path / "web"

@@ -13,6 +13,7 @@ Carte de chaleur indicative des champignons comestibles, espèce par espèce, ca
 
 - La carte s'ouvre dans le navigateur du téléphone (Safari, Chrome, Firefox) : pas de magasin d'applications, pas d'ordinateur à laisser allumé. La météo est mise à jour **chaque matin** par GitHub.
 - Choisissez l'**espèce** et le **jour** (J-7 à J+7) ; la frise montre les conditions moyennes de chaque jour. **Indice** = habitat × conditions ; **Habitat** = arbres-hôtes, altitude, sol ; **Conditions** = météo comparée aux jours habituels de la saison.
+- **Rechercher un lieu** avec la barre du haut : commune, lieu-dit, sommet, col, forêt, lac ou adresse (service de recherche de l'IGN), ou des coordonnées GPS (« 45.325, 5.764 », utilisables même hors ligne).
 - **Touchez** la carte pour voir le détail du calcul et la météo du secteur ; le bouton ◎ centre la carte sur votre position.
 - **En forêt sans réseau** : la carte, les données de la dernière visite et les fonds de carte déjà affichés restent disponibles. Si la météo enregistrée date d'un jour précédent, la carte l'indique (« mise à jour du … »). Avec un réseau trop faible, elle s'affiche au bout de 4 secondes avec la dernière météo enregistrée.
 - Volume : ~4,4 Mo à la première visite (forêts, relief, sols), puis ~60 Ko par jour.
@@ -80,4 +81,4 @@ tests/                   tests (dont la cohérence des calculs Python / JavaScri
 
 ## Données et licences
 
-Forêts : IGN BD Forêt® V2 (Licence Ouverte) · Relief : Copernicus DEM GLO-90 · Sols : ISRIC SoilGrids 2.0 (CC-BY 4.0) · Météo du jour : Open-Meteo.com (CC-BY 4.0, gratuit pour un usage non commercial) · Entraînement : observations GBIF.org (licences CC0, CC-BY, CC-BY-NC selon les jeux) et E-OBS (Copernicus / ECA&D, recherche et usage non commerciaux) · Fonds de carte : IGN, OpenTopoMap, OpenStreetMap · Carte : Leaflet (BSD-2).
+Forêts : IGN BD Forêt® V2 (Licence Ouverte) · Relief : Copernicus DEM GLO-90 · Sols : ISRIC SoilGrids 2.0 (CC-BY 4.0) · Météo du jour : Open-Meteo.com (CC-BY 4.0, gratuit pour un usage non commercial) · Entraînement : observations GBIF.org (licences CC0, CC-BY, CC-BY-NC selon les jeux) et E-OBS (Copernicus / ECA&D, recherche et usage non commerciaux) · Fonds de carte : IGN, OpenTopoMap, OpenStreetMap · Recherche de lieux : géocodage IGN Géoplateforme · Carte : Leaflet (BSD-2).

@@ -69,8 +69,26 @@ a { color: var(--accent); }
   width: min(380px, calc(100vw - 20px)); overflow-y: auto; z-index: 1100;
 }
 .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.brand > div { flex: 1; min-width: 0; }
-.brand p { margin: 0; font-size: 12.5px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.search { flex: 1; min-width: 0; position: relative; margin: 0; }
+.search input {
+  width: 100%; box-sizing: border-box; height: 36px; padding: 0 10px 0 34px; border: 1px solid var(--line);
+  border-radius: 18px; background: var(--surface-2); color: var(--text); font: inherit;
+  font-size: 16px;                       /* 16 px: iOS does not zoom the page when the field gets the focus */
+}
+.search input::placeholder { color: var(--muted); }
+.search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.search-icon {
+  position: absolute; left: 11px; top: 50%; width: 17px; height: 17px; transform: translateY(-50%); pointer-events: none;
+  fill: none; stroke: var(--muted); stroke-width: 2.2; stroke-linecap: round;
+}
+.search-results { list-style: none; margin: -2px 0 6px; padding: 0; max-height: min(55vh, 380px); overflow-y: auto; }
+.search-results li { display: flex; flex-direction: column; gap: 1px; padding: 9px 8px; border-radius: 8px; cursor: pointer; }
+.search-results li[aria-selected="true"], .search-results li:hover { background: var(--surface-2); }
+.search-results small { color: var(--muted); font-size: 12.5px; }
+.search-results li.note { cursor: default; color: var(--text-2); font-size: 13px; background: none; }
+.search-results[hidden], #top.searching .field, #top.searching .segmented { display: none; }
+.place-label { font-weight: 600; }
 .icon-btn {
   border: 1px solid var(--line); background: var(--surface-2); color: var(--text); border-radius: 50%;
   width: 32px; height: 32px; font-size: 16px; cursor: pointer; flex: none;
