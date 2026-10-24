@@ -49,14 +49,22 @@ jobs:
             echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # weather downloaded once a day: a later run on the same day (change of the application) reuses it
-      - if: steps.pages.outputs.publish == 'true'
-        uses: actions/cache@v4
+      # the morning run always downloads the weather (latest forecast); a run for a change of the application
+      # reuses the latest download of the day
+      - id: weather
+        if: steps.pages.outputs.publish == 'true' && github.event_name != 'schedule'
+        uses: actions/cache/restore@v4
         with:
           path: data/weather
-          key: meteo-${{ steps.pages.outputs.day }}
+          key: meteo-${{ steps.pages.outputs.day }}-${{ github.run_id }}
+          restore-keys: meteo-${{ steps.pages.outputs.day }}-
       - if: steps.pages.outputs.publish == 'true'
         run: python -m mushroomator update
+      - if: steps.pages.outputs.publish == 'true' && steps.weather.outputs.cache-matched-key == ''
+        uses: actions/cache/save@v4
+        with:
+          path: data/weather
+          key: meteo-${{ steps.pages.outputs.day }}-${{ github.run_id }}
       - if: steps.pages.outputs.publish == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
