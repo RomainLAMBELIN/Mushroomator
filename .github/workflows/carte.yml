@@ -21,6 +21,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30       # ~7 min normally; a stuck download must not hold back the next runs for 6 h
     outputs:
       publish: ${{ steps.pages.outputs.publish }}
     steps:
@@ -65,6 +66,7 @@ jobs:
     needs: build
     if: needs.build.outputs.publish == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
