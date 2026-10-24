@@ -9,3 +9,8 @@ data/
 *.nc
 *.npz
 *.csv.gz
+
+# Site généré (python -m mushroomator update)
+site/
+*.egg-info/
+.pytest_cache/

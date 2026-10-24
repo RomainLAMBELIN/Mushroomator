@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mushroomator</title>
+  <meta name="description" content="Carte de chaleur indicative des champignons comestibles selon la météo, les forêts et les sols.">
+  <meta name="theme-color" content="#2f4a2a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="map" aria-label="Carte"></div>
+
+  <header class="card top" id="top">
+    <div class="brand">
+      <img src="icons/icon.svg" alt="" width="28" height="28">
+      <div>
+        <h1>Mushroomator</h1>
+        <p id="region-name" class="muted">Chargement…</p>
+      </div>
+      <button id="about-btn" class="icon-btn" aria-label="À propos et sécurité" title="À propos et sécurité">?</button>
+    </div>
+    <label class="field">
+      <span>Espèce</span>
+      <select id="species"></select>
+    </label>
+    <div class="segmented" role="radiogroup" aria-label="Couche affichée">
+      <button role="radio" data-mode="indice" aria-checked="true">Indice</button>
+      <button role="radio" data-mode="habitat" aria-checked="false">Habitat</button>
+      <button role="radio" data-mode="meteo" aria-checked="false">Conditions</button>
+    </div>
+  </header>
+
+  <section class="card bottom" id="bottom">
+    <div class="day-head">
+      <strong id="day-label">—</strong>
+      <span id="day-note" class="muted"></span>
+    </div>
+    <div id="day-strip" class="day-strip" aria-hidden="true"></div>
+    <input id="day" type="range" min="0" max="0" value="0" aria-label="Jour affiché">
+    <div class="legend">
+      <div class="ramp" id="ramp"></div>
+      <div class="ramp-labels"><span>faible</span><span>moyen</span><span>bon</span><span>très bon</span></div>
+      <p id="legend-text" class="muted small"></p>
+    </div>
+    <label class="field inline small">
+      <span>Opacité</span>
+      <input id="opacity" type="range" min="0.2" max="1" step="0.05" value="0.8">
+    </label>
+  </section>
+
+  <aside class="card panel" id="details" hidden aria-live="polite">
+    <button class="icon-btn close" data-close="details" aria-label="Fermer">×</button>
+    <div id="details-body"></div>
+  </aside>
+
+  <aside class="card panel" id="about" hidden>
+    <button class="icon-btn close" data-close="about" aria-label="Fermer">×</button>
+    <h2>À propos</h2>
+    <p class="warning"><strong>Outil indicatif, jamais d'identification.</strong> La carte indique où et quand chercher,
+      pas si un champignon est comestible. Faites toujours contrôler votre cueillette par un pharmacien ou un mycologue.
+      En cas de symptômes après un repas de champignons : appelez le 15 ou un centre antipoison.</p>
+    <h3>Comment lire la carte</h3>
+    <p><strong>Indice</strong> = habitat × conditions. <strong>Habitat</strong> : arbres-hôtes (BD Forêt IGN), altitude et pH du sol.
+      <strong>Conditions</strong> : météo des semaines précédentes et prévue, comparée aux jours habituels de la saison
+      (100 = parmi les meilleurs jours de la saison). Cliquez sur la carte pour le détail du calcul.</p>
+    <p>L'indice est <em>relatif</em> : ce n'est pas une probabilité absolue de trouver des champignons.</p>
+    <h3>Règles de cueillette</h3>
+    <p>Les champignons appartiennent au propriétaire du terrain. En forêt publique (ONF), la cueillette est tolérée
+      jusqu'à 5 litres sauf arrêté contraire ; au-delà de 10 litres sans autorisation, c'est un délit. Consultez les
+      arrêtés préfectoraux et respectez les espaces protégés.</p>
+    <h3>Qualité des modèles</h3>
+    <div id="about-metrics"></div>
+    <h3>Données</h3>
+    <p class="small" id="about-sources"></p>
+    <p class="small muted" id="about-version"></p>
+  </aside>
+
+  <div id="safety" class="modal" hidden>
+    <div class="card">
+      <h2>Avant de commencer</h2>
+      <p>Mushroomator estime où et quand les conditions sont favorables. Il ne dit jamais si un champignon est
+        comestible : chaque année en France, plus d'un millier de personnes s'intoxiquent, souvent en confondant des
+        espèces (par exemple girolle et clitocybe de l'olivier).</p>
+      <p>Ne consommez jamais un champignon sans identification certaine par un pharmacien ou un mycologue.</p>
+      <button id="safety-ok" class="primary">J'ai compris</button>
+    </div>
+  </div>
+
+  <div id="loading" class="loading">Chargement des données…</div>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

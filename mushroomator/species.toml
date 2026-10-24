@@ -1,0 +1,290 @@
+# Espèces suivies par Mushroomator.
+#
+# hotes : aptitude (0 à 1) de chaque groupe de formations végétales de la BD Forêt V2 à héberger l'espèce
+#         (voir mushroomator/sources/bdforet.py pour la correspondance avec les classes IGN).
+#         Valeurs a priori tirées de la littérature mycologique ; à ajuster selon votre expérience.
+# ph    : [pH où l'aptitude vaut `ph_bas`, pH où elle vaut 1] pour une préférence acide (premier > second)
+#         ou calcaire (premier < second) ; transition linéaire entre les deux.
+# altitude : [min, optimum bas, optimum haut, max] en mètres (trapèze adouci).
+# gbif  : noms scientifiques utilisés pour l'entraînement et la validation.
+
+[cepe]
+nom = "Cèpe de Bordeaux"
+latin = "Boletus edulis"
+gbif = ["Boletus edulis"]
+ph = [7.5, 6.0]
+ph_bas = 0.6
+altitude = [100, 300, 1700, 2100]
+confusions = "Bolet amer (immangeable), bolets à pores rouges (certains toxiques)."
+[cepe.hotes]
+chene_decidu = 0.8
+chene_sempervirent = 0.3
+hetre = 1.0
+chataignier = 0.9
+robinier = 0.05
+peupleraie = 0.05
+feuillu_autre = 0.4
+feuillus_melange = 0.8
+pin_sylvestre = 0.8
+pin_noir = 0.5
+pin_autre = 0.5
+pin_montagne = 0.5
+sapin_epicea = 1.0
+meleze = 0.4
+douglas = 0.5
+conifere_autre = 0.7
+mixte_feuillus = 0.9
+mixte_coniferes = 1.0
+sans_couvert = 0.1
+lande = 0.1
+herbacee = 0.0
+
+[girolle]
+nom = "Girolle"
+latin = "Cantharellus cibarius"
+gbif = ["Cantharellus cibarius"]
+# Réputée acidophile, mais en Rhône-Alpes les observations ne sont pas sur des sols plus acides que celles des
+# autres champignons forestiers (validation 2026) : pas de préférence de pH.
+ph = [7.5, 5.5]
+ph_bas = 1.0
+altitude = [0, 100, 1500, 1900]
+confusions = "Clitocybe de l'olivier (toxique, confusion n° 1 en France en 2024), fausse girolle."
+[girolle.hotes]
+chene_decidu = 0.9
+chene_sempervirent = 0.4
+hetre = 1.0
+chataignier = 1.0
+robinier = 0.05
+peupleraie = 0.05
+feuillu_autre = 0.4
+feuillus_melange = 0.9
+pin_sylvestre = 0.7
+pin_noir = 0.4
+pin_autre = 0.5
+pin_montagne = 0.4
+sapin_epicea = 0.8
+meleze = 0.3
+douglas = 0.4
+conifere_autre = 0.6
+mixte_feuillus = 0.9
+mixte_coniferes = 0.8
+sans_couvert = 0.1
+lande = 0.1
+herbacee = 0.0
+
+[trompette]
+nom = "Trompette de la mort"
+latin = "Craterellus cornucopioides"
+gbif = ["Craterellus cornucopioides"]
+ph = [4.5, 5.5]
+ph_bas = 0.8
+altitude = [0, 100, 1300, 1700]
+confusions = "Peu de confusions graves ; vérifier l'absence de lames sous le chapeau."
+[trompette.hotes]
+chene_decidu = 0.9
+chene_sempervirent = 0.3
+hetre = 1.0
+chataignier = 0.7
+robinier = 0.05
+peupleraie = 0.1
+feuillu_autre = 0.5
+feuillus_melange = 1.0
+pin_sylvestre = 0.2
+pin_noir = 0.2
+pin_autre = 0.15
+pin_montagne = 0.1
+sapin_epicea = 0.4
+meleze = 0.1
+douglas = 0.1
+conifere_autre = 0.3
+mixte_feuillus = 0.9
+mixte_coniferes = 0.6
+sans_couvert = 0.05
+lande = 0.0
+herbacee = 0.0
+
+[chanterelle_tube]
+nom = "Chanterelle en tube"
+latin = "Craterellus tubaeformis"
+gbif = ["Craterellus tubaeformis"]
+ph = [7.0, 5.0]
+ph_bas = 0.3
+altitude = [100, 400, 1800, 2200]
+confusions = "Petites chanterelles et clitocybes à lames ; vérifier les plis décurrents et le pied creux."
+[chanterelle_tube.hotes]
+chene_decidu = 0.4
+chene_sempervirent = 0.1
+hetre = 0.6
+chataignier = 0.5
+robinier = 0.0
+peupleraie = 0.0
+feuillu_autre = 0.4
+feuillus_melange = 0.5
+pin_sylvestre = 0.8
+pin_noir = 0.4
+pin_autre = 0.4
+pin_montagne = 0.7
+sapin_epicea = 1.0
+meleze = 0.5
+douglas = 0.6
+conifere_autre = 0.8
+mixte_feuillus = 0.7
+mixte_coniferes = 1.0
+sans_couvert = 0.05
+lande = 0.1
+herbacee = 0.0
+
+[pied_mouton]
+nom = "Pied de mouton"
+latin = "Hydnum repandum"
+gbif = ["Hydnum repandum"]
+ph = [4.5, 6.0]
+ph_bas = 0.8
+altitude = [0, 100, 1600, 2000]
+confusions = "Peu de confusions graves (aiguillons sous le chapeau)."
+[pied_mouton.hotes]
+chene_decidu = 0.9
+chene_sempervirent = 0.5
+hetre = 1.0
+chataignier = 0.8
+robinier = 0.05
+peupleraie = 0.1
+feuillu_autre = 0.5
+feuillus_melange = 0.9
+pin_sylvestre = 0.7
+pin_noir = 0.6
+pin_autre = 0.5
+pin_montagne = 0.5
+sapin_epicea = 0.9
+meleze = 0.4
+douglas = 0.5
+conifere_autre = 0.7
+mixte_feuillus = 0.9
+mixte_coniferes = 0.9
+sans_couvert = 0.05
+lande = 0.05
+herbacee = 0.0
+
+[morilles]
+nom = "Morilles"
+latin = "Morchella spp."
+gbif = ["Morchella"]
+ph = [5.0, 6.8]
+ph_bas = 0.4
+altitude = [0, 100, 1700, 2100]
+confusions = "Gyromitres (toxiques). Les morilles sont elles-mêmes toxiques crues ou mal cuites."
+[morilles.hotes]
+chene_decidu = 0.4
+chene_sempervirent = 0.2
+hetre = 0.3
+chataignier = 0.2
+robinier = 0.3
+peupleraie = 1.0
+feuillu_autre = 0.9
+feuillus_melange = 0.7
+pin_sylvestre = 0.2
+pin_noir = 0.2
+pin_autre = 0.2
+pin_montagne = 0.1
+sapin_epicea = 0.6
+meleze = 0.5
+douglas = 0.2
+conifere_autre = 0.4
+mixte_feuillus = 0.6
+mixte_coniferes = 0.5
+sans_couvert = 0.4
+lande = 0.2
+herbacee = 0.2
+
+[hygrophore_mars]
+nom = "Hygrophore de mars"
+latin = "Hygrophorus marzuolus"
+gbif = ["Hygrophorus marzuolus"]
+ph = [7.0, 5.5]
+ph_bas = 0.6
+altitude = [400, 800, 1700, 2000]
+confusions = "Champignons gris à lames de printemps (tricholomes, entolomes) : examiner chaque exemplaire."
+[hygrophore_mars.hotes]
+chene_decidu = 0.1
+chene_sempervirent = 0.0
+hetre = 0.8
+chataignier = 0.1
+robinier = 0.0
+peupleraie = 0.0
+feuillu_autre = 0.1
+feuillus_melange = 0.4
+pin_sylvestre = 0.4
+pin_noir = 0.2
+pin_autre = 0.2
+pin_montagne = 0.4
+sapin_epicea = 1.0
+meleze = 0.3
+douglas = 0.3
+conifere_autre = 0.7
+mixte_feuillus = 0.7
+mixte_coniferes = 1.0
+sans_couvert = 0.05
+lande = 0.0
+herbacee = 0.0
+
+[lactaire_delicieux]
+nom = "Lactaire délicieux"
+latin = "Lactarius deliciosus"
+gbif = ["Lactarius deliciosus"]
+ph = [5.5, 7.0]
+ph_bas = 0.4
+altitude = [0, 100, 1400, 1800]
+confusions = "Autres lactaires (certains âcres ou toxiques) : le lait doit être orange carotte."
+[lactaire_delicieux.hotes]
+chene_decidu = 0.05
+chene_sempervirent = 0.05
+hetre = 0.05
+chataignier = 0.0
+robinier = 0.0
+peupleraie = 0.0
+feuillu_autre = 0.0
+feuillus_melange = 0.05
+pin_sylvestre = 1.0
+pin_noir = 1.0
+pin_autre = 1.0
+pin_montagne = 0.6
+sapin_epicea = 0.2
+meleze = 0.1
+douglas = 0.1
+conifere_autre = 0.5
+mixte_feuillus = 0.3
+mixte_coniferes = 0.6
+sans_couvert = 0.1
+lande = 0.2
+herbacee = 0.0
+
+[oronge]
+nom = "Oronge (amanite des Césars)"
+latin = "Amanita caesarea"
+gbif = ["Amanita caesarea"]
+ph = [7.5, 6.0]
+ph_bas = 0.5
+altitude = [0, 100, 800, 1200]
+confusions = "Amanite tue-mouches ; œufs d'autres amanites dont l'amanite phalloïde (mortelle). Toujours couper l'œuf."
+[oronge.hotes]
+chene_decidu = 1.0
+chene_sempervirent = 0.7
+hetre = 0.3
+chataignier = 1.0
+robinier = 0.05
+peupleraie = 0.0
+feuillu_autre = 0.2
+feuillus_melange = 0.8
+pin_sylvestre = 0.3
+pin_noir = 0.2
+pin_autre = 0.3
+pin_montagne = 0.0
+sapin_epicea = 0.1
+meleze = 0.0
+douglas = 0.1
+conifere_autre = 0.2
+mixte_feuillus = 0.7
+mixte_coniferes = 0.4
+sans_couvert = 0.05
+lande = 0.05
+herbacee = 0.0

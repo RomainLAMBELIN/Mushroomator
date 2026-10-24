@@ -1,0 +1,41 @@
+{
+ "region": "rhone-alpes",
+ "name": "Rhône-Alpes et alentours",
+ "grid": {
+  "crs": "EPSG:3857",
+  "x0": 367250.0,
+  "y1": 5909500.0,
+  "res": 250.0,
+  "nx": 1782,
+  "ny": 1839,
+  "bounds": [
+   3.2990628809289424,
+   43.89851141473459,
+   7.301057471681411,
+   46.80006233217961
+  ]
+ },
+ "attribution": "Forêts : IGN BD Forêt® V2 (Licence Ouverte) · Relief : Copernicus DEM GLO-90 · Sols : ISRIC SoilGrids 2.0 (CC-BY 4.0)",
+ "files": {
+  "host": {
+   "file": "host.u8.gz",
+   "dtype": "uint8",
+   "nodata": 0
+  },
+  "forest": {
+   "file": "forest.u8.gz",
+   "dtype": "uint8",
+   "nodata": 0
+  },
+  "elev": {
+   "file": "elev.u16.gz",
+   "dtype": "uint16",
+   "nodata": 65535
+  },
+  "ph10": {
+   "file": "ph10.u8.gz",
+   "dtype": "uint8",
+   "nodata": 0
+  }
+ }
+}

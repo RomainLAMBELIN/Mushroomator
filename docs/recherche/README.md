@@ -2,6 +2,8 @@
 
 *Rédigé le 24 octobre 2026. Objectif : déterminer comment construire une carte de chaleur de la probabilité de trouver des champignons comestibles, espèce par espèce, à partir de la météo passée et prévue, de l'humidité, des arbres, du sol et du relief.*
 
+> **Mise à jour :** un premier prototype pour Rhône-Alpes (usage personnel) a été réalisé à partir de ces conclusions : voir le [chapitre 7](07-prototype-rhone-alpes.md).
+
 ## L'essentiel en une page
 
 1. **Ce qui fait pousser un champignon est bien connu dans les grandes lignes.** Il faut que le mycélium soit là (*habitat* : arbre-hôte pour les espèces mycorhiziennes comme le cèpe ou la girolle, sol, climat, relief) et que la météo le déclenche (*déclenchement* : sol humidifié par les pluies des 2 à 6 dernières semaines, température dans une fenêtre favorable, autour de 10–15 °C pour le cèpe, pas de chaleur ni de gel). La température cadence surtout la date de fructification ; la pluie limite surtout au sud. → [Chapitre 1](01-ecologie-fructification.md)
@@ -45,6 +47,7 @@ flowchart LR
 | [4. L'existant et la concurrence](04-existant-et-concurrence.md) | services publics (Tchéquie, Espagne, Québec…), applications commerciales, axes de différenciation |
 | [5. Étude de faisabilité](05-etude-de-faisabilite.md) | expérience réelle : 6 espèces, GBIF + E-OBS, résultats, limites |
 | [6. Architecture et feuille de route](06-architecture-et-feuille-de-route.md) | architecture technique, ordres de grandeur, risques, réglementation, phases du projet, décisions à prendre |
+| [7. Prototype Rhône-Alpes](07-prototype-rhone-alpes.md) | application réalisée (usage personnel), modèles retenus, validation sur les saisons 2011-2024, limites |
 | [Bibliographie](references.md) | articles (DOI vérifiés), données, services |
 
 ## Limites de ce dossier

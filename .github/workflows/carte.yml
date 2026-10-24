@@ -1,0 +1,44 @@
+# Daily weather update and publication of the map on GitHub Pages.
+# Runs on schedule only once the repository variable MUSHROOMATOR_PAGES is set to "true"
+# (Settings → Secrets and variables → Actions → Variables) and Pages uses "GitHub Actions" as source.
+name: Mise à jour de la carte
+
+on:
+  schedule:
+    - cron: "17 4 * * *"     # every day at 04:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || vars.MUSHROOMATOR_PAGES == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - run: python -m mushroomator update
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
