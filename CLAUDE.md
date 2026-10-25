@@ -4,7 +4,8 @@
 
 Un outil qui aide à **identifier les coins à champignons** : où chercher à l'échelle du coin (10 à 100 m), et quand y aller.
 Le *quand* (météo) fonctionne ; le *où* est la priorité : la couche habitat ne fait guère mieux que « c'est une forêt » pour le cèpe et la girolle (AUC ≈ 0,5).
-Pistes, critères de réussite et feuille de route : [docs/recherche/08-identifier-les-coins.md](docs/recherche/08-identifier-les-coins.md).
+Essais du 25/10/2026 : aucune donnée publique fine (LiDAR HD, relief, eau, BD Forêt au point, observations GBIF) ne situe les coins de cèpe ou de girolle (AUC ≤ 0,6) ; seules les morilles en profitent. Méthode retenue : prospection guidée (peuplement + météo) et carnet de sorties privé dont l'outil apprend (coins semblables, puis calibration).
+Résultats, critères et feuille de route : [docs/recherche/08-identifier-les-coins.md](docs/recherche/08-identifier-les-coins.md).
 
 ## Repères
 

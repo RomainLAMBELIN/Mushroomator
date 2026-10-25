@@ -1,0 +1,275 @@
+{
+ "cepe": {
+  "anciennes": 145,
+  "test_espece": 181,
+  "test_autres": 7692,
+  "auc_autre_observateur": 0.483,
+  "autre_observateur_100m": [
+   0.0,
+   0.002
+  ],
+  "autre_observateur_250m": [
+   0.0,
+   0.004
+  ],
+  "autre_observateur_500m": [
+   0.0,
+   0.006
+  ],
+  "autre_observateur_1000m": [
+   0.022,
+   0.015
+  ],
+  "auc_tout_observateur": 0.499,
+  "tout_observateur_100m": [
+   0.0,
+   0.002
+  ],
+  "tout_observateur_250m": [
+   0.006,
+   0.005
+  ],
+  "tout_observateur_500m": [
+   0.011,
+   0.008
+  ],
+  "tout_observateur_1000m": [
+   0.033,
+   0.019
+  ]
+ },
+ "chanterelle_tube": {
+  "anciennes": 45,
+  "test_espece": 78,
+  "test_autres": 7692,
+  "auc_autre_observateur": 0.533,
+  "autre_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "autre_observateur_250m": [
+   0.0,
+   0.001
+  ],
+  "autre_observateur_500m": [
+   0.0,
+   0.001
+  ],
+  "autre_observateur_1000m": [
+   0.0,
+   0.004
+  ],
+  "auc_tout_observateur": 0.536,
+  "tout_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "tout_observateur_250m": [
+   0.0,
+   0.001
+  ],
+  "tout_observateur_500m": [
+   0.0,
+   0.002
+  ],
+  "tout_observateur_1000m": [
+   0.0,
+   0.004
+  ]
+ },
+ "girolle": {
+  "anciennes": 62,
+  "test_espece": 118,
+  "test_autres": 7692,
+  "auc_autre_observateur": 0.45,
+  "autre_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "autre_observateur_250m": [
+   0.008,
+   0.001
+  ],
+  "autre_observateur_500m": [
+   0.008,
+   0.002
+  ],
+  "autre_observateur_1000m": [
+   0.017,
+   0.004
+  ],
+  "auc_tout_observateur": 0.585,
+  "tout_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "tout_observateur_250m": [
+   0.008,
+   0.001
+  ],
+  "tout_observateur_500m": [
+   0.008,
+   0.002
+  ],
+  "tout_observateur_1000m": [
+   0.042,
+   0.005
+  ]
+ },
+ "lactaire_delicieux": {
+  "anciennes": 39,
+  "test_espece": 52,
+  "test_autres": 7692,
+  "auc_autre_observateur": 0.457,
+  "autre_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "autre_observateur_250m": [
+   0.0,
+   0.001
+  ],
+  "autre_observateur_500m": [
+   0.0,
+   0.001
+  ],
+  "autre_observateur_1000m": [
+   0.0,
+   0.004
+  ],
+  "auc_tout_observateur": 0.49,
+  "tout_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "tout_observateur_250m": [
+   0.0,
+   0.001
+  ],
+  "tout_observateur_500m": [
+   0.0,
+   0.002
+  ],
+  "tout_observateur_1000m": [
+   0.0,
+   0.005
+  ]
+ },
+ "morilles": {
+  "anciennes": 44,
+  "test_espece": 71,
+  "test_autres": 7692,
+  "auc_autre_observateur": 0.536,
+  "autre_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "autre_observateur_250m": [
+   0.0,
+   0.001
+  ],
+  "autre_observateur_500m": [
+   0.0,
+   0.001
+  ],
+  "autre_observateur_1000m": [
+   0.0,
+   0.002
+  ],
+  "auc_tout_observateur": 0.527,
+  "tout_observateur_100m": [
+   0.014,
+   0.0
+  ],
+  "tout_observateur_250m": [
+   0.014,
+   0.001
+  ],
+  "tout_observateur_500m": [
+   0.014,
+   0.002
+  ],
+  "tout_observateur_1000m": [
+   0.014,
+   0.004
+  ]
+ },
+ "pied_mouton": {
+  "anciennes": 50,
+  "test_espece": 84,
+  "test_autres": 7692,
+  "auc_autre_observateur": 0.516,
+  "autre_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "autre_observateur_250m": [
+   0.012,
+   0.001
+  ],
+  "autre_observateur_500m": [
+   0.012,
+   0.003
+  ],
+  "autre_observateur_1000m": [
+   0.012,
+   0.004
+  ],
+  "auc_tout_observateur": 0.521,
+  "tout_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "tout_observateur_250m": [
+   0.012,
+   0.001
+  ],
+  "tout_observateur_500m": [
+   0.036,
+   0.003
+  ],
+  "tout_observateur_1000m": [
+   0.036,
+   0.005
+  ]
+ },
+ "trompette": {
+  "anciennes": 24,
+  "test_espece": 79,
+  "test_autres": 7692,
+  "auc_autre_observateur": 0.501,
+  "autre_observateur_100m": [
+   0.0,
+   0.0
+  ],
+  "autre_observateur_250m": [
+   0.0,
+   0.0
+  ],
+  "autre_observateur_500m": [
+   0.0,
+   0.001
+  ],
+  "autre_observateur_1000m": [
+   0.0,
+   0.001
+  ],
+  "auc_tout_observateur": 0.526,
+  "tout_observateur_100m": [
+   0.013,
+   0.0
+  ],
+  "tout_observateur_250m": [
+   0.013,
+   0.001
+  ],
+  "tout_observateur_500m": [
+   0.013,
+   0.001
+  ],
+  "tout_observateur_1000m": [
+   0.038,
+   0.003
+  ]
+ }
+}

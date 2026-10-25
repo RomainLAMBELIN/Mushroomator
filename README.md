@@ -11,7 +11,7 @@ Carte de chaleur indicative des champignons comestibles, espèce par espèce, ca
 
 **Aider à identifier les coins à champignons** : dire où chercher, à l'échelle du coin (quelques dizaines de mètres), et quand y aller.
 
-Aujourd'hui, l'outil est fiable pour le *quand* (météo des semaines précédentes), pas encore pour le *où* : pour le cèpe ou la girolle, la couche habitat ne fait guère mieux que « c'est une forêt ». Les pistes pour y arriver (LiDAR HD, relief fin, vos propres coins) et les critères de réussite sont dans le [chapitre 8 du dossier](docs/recherche/08-identifier-les-coins.md).
+Aujourd'hui, l'outil est fiable pour le *quand* (météo des semaines précédentes), pas pour le *où* : pour le cèpe ou la girolle, la couche habitat ne fait guère mieux que « c'est une forêt ». Les essais avec les données publiques les plus fines (LiDAR HD, relief, cours d'eau, peuplement au point) n'ont pas permis de situer les coins ; la méthode retenue s'appuie sur vos propres sorties, notées dans un carnet privé dont l'outil apprend. Détails dans le [chapitre 8 du dossier](docs/recherche/08-identifier-les-coins.md).
 
 ## Sur le téléphone, sans rien installer
 

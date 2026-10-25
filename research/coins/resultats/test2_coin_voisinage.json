@@ -1,0 +1,351 @@
+{
+ "cepe": {
+  "strates": 196,
+  "temoins": 709,
+  "hgb_brut": [
+   0.526,
+   0.002
+  ],
+  "hgb_contrastes": [
+   0.5,
+   0.008
+  ],
+  "logit_contrastes": [
+   0.508,
+   0.016
+  ],
+  "logit_contrastes_vegetation": [
+   0.473,
+   0.014
+  ],
+  "logit_contrastes_relief": [
+   0.518,
+   0.024
+  ],
+  "logit_contrastes+eau": [
+   0.528,
+   0.011
+  ],
+  "hgb_contrastes+eau": [
+   0.541,
+   0.007
+  ],
+  "region_strates": 32,
+  "region_logit_contrastes+eau": [
+   0.592,
+   0.049
+  ],
+  "region_logit_+hote_lisiere": [
+   0.591,
+   0.061
+  ],
+  "region_hote_seul": 0.529,
+  "general_hgb_contrastes": 0.538,
+  "general_logit_contrastes": 0.51
+ },
+ "girolle": {
+  "strates": 122,
+  "temoins": 432,
+  "hgb_brut": [
+   0.5,
+   0.037
+  ],
+  "hgb_contrastes": [
+   0.599,
+   0.008
+  ],
+  "logit_contrastes": [
+   0.5,
+   0.009
+  ],
+  "logit_contrastes_vegetation": [
+   0.514,
+   0.009
+  ],
+  "logit_contrastes_relief": [
+   0.469,
+   0.041
+  ],
+  "logit_contrastes+eau": [
+   0.492,
+   0.014
+  ],
+  "hgb_contrastes+eau": [
+   0.583,
+   0.021
+  ],
+  "general_hgb_contrastes": 0.536,
+  "general_logit_contrastes": 0.488
+ },
+ "trompette": {
+  "strates": 82,
+  "temoins": 291,
+  "hgb_brut": [
+   0.565,
+   0.011
+  ],
+  "hgb_contrastes": [
+   0.525,
+   0.03
+  ],
+  "logit_contrastes": [
+   0.571,
+   0.013
+  ],
+  "logit_contrastes_vegetation": [
+   0.472,
+   0.027
+  ],
+  "logit_contrastes_relief": [
+   0.601,
+   0.007
+  ],
+  "logit_contrastes+eau": [
+   0.559,
+   0.006
+  ],
+  "hgb_contrastes+eau": [
+   0.533,
+   0.017
+  ],
+  "general_hgb_contrastes": 0.509,
+  "general_logit_contrastes": 0.49
+ },
+ "chanterelle_tube": {
+  "strates": 84,
+  "temoins": 309,
+  "hgb_brut": [
+   0.506,
+   0.032
+  ],
+  "hgb_contrastes": [
+   0.466,
+   0.046
+  ],
+  "logit_contrastes": [
+   0.479,
+   0.014
+  ],
+  "logit_contrastes_vegetation": [
+   0.457,
+   0.026
+  ],
+  "logit_contrastes_relief": [
+   0.491,
+   0.016
+  ],
+  "logit_contrastes+eau": [
+   0.475,
+   0.03
+  ],
+  "hgb_contrastes+eau": [
+   0.487,
+   0.037
+  ],
+  "general_hgb_contrastes": 0.548,
+  "general_logit_contrastes": 0.507
+ },
+ "pied_mouton": {
+  "strates": 91,
+  "temoins": 328,
+  "hgb_brut": [
+   0.515,
+   0.017
+  ],
+  "hgb_contrastes": [
+   0.487,
+   0.012
+  ],
+  "logit_contrastes": [
+   0.5,
+   0.032
+  ],
+  "logit_contrastes_vegetation": [
+   0.488,
+   0.012
+  ],
+  "logit_contrastes_relief": [
+   0.505,
+   0.023
+  ],
+  "logit_contrastes+eau": [
+   0.488,
+   0.028
+  ],
+  "hgb_contrastes+eau": [
+   0.521,
+   0.011
+  ],
+  "general_hgb_contrastes": 0.582,
+  "general_logit_contrastes": 0.532
+ },
+ "morilles": {
+  "strates": 50,
+  "temoins": 167,
+  "hgb_brut": [
+   0.681,
+   0.036
+  ],
+  "hgb_contrastes": [
+   0.668,
+   0.008
+  ],
+  "logit_contrastes": [
+   0.649,
+   0.014
+  ],
+  "logit_contrastes_vegetation": [
+   0.719,
+   0.02
+  ],
+  "logit_contrastes_relief": [
+   0.625,
+   0.022
+  ],
+  "logit_contrastes+eau": [
+   0.678,
+   0.02
+  ],
+  "hgb_contrastes+eau": [
+   0.68,
+   0.02
+  ],
+  "general_hgb_contrastes": 0.517,
+  "general_logit_contrastes": 0.37
+ },
+ "lactaire_delicieux": {
+  "strates": 49,
+  "temoins": 168,
+  "hgb_brut": [
+   0.402,
+   0.01
+  ],
+  "hgb_contrastes": [
+   0.452,
+   0.04
+  ],
+  "logit_contrastes": [
+   0.466,
+   0.011
+  ],
+  "logit_contrastes_vegetation": [
+   0.457,
+   0.032
+  ],
+  "logit_contrastes_relief": [
+   0.439,
+   0.038
+  ],
+  "logit_contrastes+eau": [
+   0.448,
+   0.022
+  ],
+  "hgb_contrastes+eau": [
+   0.446,
+   0.035
+  ],
+  "general_hgb_contrastes": 0.485,
+  "general_logit_contrastes": 0.524
+ },
+ "groupe_cible": {
+  "strates": 619,
+  "temoins": 2164,
+  "hgb_brut": [
+   0.536,
+   0.012
+  ],
+  "hgb_contrastes": [
+   0.554,
+   0.005
+  ],
+  "logit_contrastes": [
+   0.553,
+   0.007
+  ],
+  "logit_contrastes_vegetation": [
+   0.532,
+   0.009
+  ],
+  "logit_contrastes_relief": [
+   0.517,
+   0.004
+  ],
+  "logit_contrastes+eau": [
+   0.555,
+   0.006
+  ],
+  "hgb_contrastes+eau": [
+   0.564,
+   0.006
+  ]
+ },
+ "toutes_especes": {
+  "strates": 711,
+  "temoins": 2526,
+  "hgb_brut": [
+   0.504,
+   0.014
+  ],
+  "hgb_contrastes": [
+   0.538,
+   0.006
+  ],
+  "logit_contrastes": [
+   0.514,
+   0.003
+  ],
+  "logit_contrastes_vegetation": [
+   0.505,
+   0.005
+  ],
+  "logit_contrastes_relief": [
+   0.508,
+   0.006
+  ],
+  "logit_contrastes+eau": [
+   0.52,
+   0.004
+  ],
+  "hgb_contrastes+eau": [
+   0.55,
+   0.008
+  ],
+  "region_strates": 113,
+  "region_logit_contrastes+eau": [
+   0.568,
+   0.014
+  ],
+  "region_logit_+hote_lisiere": [
+   0.571,
+   0.017
+  ],
+  "region_hote_seul": 0.531,
+  "general_hgb_contrastes": 0.532,
+  "general_logit_contrastes": 0.497
+ },
+ "coefficients_champignons_en_general": {
+  "h_moy_10": -0.183,
+  "h_p90_10": 0.157,
+  "h_et_10": 0.05,
+  "trouees_10": -0.029,
+  "h_moy_25": 0.2,
+  "h_p90_25": 0.266,
+  "h_et_25": -0.39,
+  "trouees_25": 0.162,
+  "h_moy_50": -0.456,
+  "h_p90_50": 0.109,
+  "h_et_50": 0.264,
+  "trouees_50": -0.444,
+  "pente_5": 0.266,
+  "pente_25": -0.463,
+  "nordicite": 0.04,
+  "estitude": -0.02,
+  "tpi_25": -0.218,
+  "tpi_50": 0.324,
+  "tpi_100": -0.073,
+  "tpi_200": -0.116,
+  "courbure_10": 0.084,
+  "humidite_twi": -0.045,
+  "altitude": -0.011
+ }
+}

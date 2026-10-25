@@ -1,0 +1,490 @@
+{
+ "cepe|tous": {
+  "n": 278,
+  "n_fond": 4636,
+  "grossier": [
+   0.553,
+   0.006
+  ],
+  "grossier+fin": [
+   0.554,
+   0.012
+  ],
+  "fin_seul": [
+   0.546,
+   0.014
+  ],
+  "logit_grossier": [
+   0.53,
+   0.01
+  ],
+  "logit_grossier+fin": [
+   0.519,
+   0.012
+  ],
+  "top10_grossier": 0.101,
+  "top10_grossier+fin": 0.122,
+  "importance": {
+   "vegetation": 0.034,
+   "relief": 0.035,
+   "position_altitude": 0.018
+  },
+  "region_n": 49,
+  "region_auc_H_appli": 0.462,
+  "region_H+altitude": 0.494,
+  "region_H+altitude+fin": 0.497
+ },
+ "girolle|tous": {
+  "n": 157,
+  "n_fond": 4636,
+  "grossier": [
+   0.636,
+   0.028
+  ],
+  "grossier+fin": [
+   0.594,
+   0.014
+  ],
+  "fin_seul": [
+   0.528,
+   0.013
+  ],
+  "logit_grossier": [
+   0.514,
+   0.022
+  ],
+  "logit_grossier+fin": [
+   0.54,
+   0.007
+  ],
+  "top10_grossier": 0.255,
+  "top10_grossier+fin": 0.236,
+  "importance": {
+   "vegetation": 0.022,
+   "relief": 0.02,
+   "position_altitude": 0.119
+  },
+  "region_n": 29,
+  "region_auc_H_appli": 0.533,
+  "region_H+altitude": 0.585,
+  "region_H+altitude+fin": 0.638
+ },
+ "trompette|tous": {
+  "n": 93,
+  "n_fond": 4636,
+  "grossier": [
+   0.61,
+   0.009
+  ],
+  "grossier+fin": [
+   0.667,
+   0.013
+  ],
+  "fin_seul": [
+   0.61,
+   0.008
+  ],
+  "logit_grossier": [
+   0.582,
+   0.002
+  ],
+  "logit_grossier+fin": [
+   0.642,
+   0.003
+  ],
+  "top10_grossier": 0.258,
+  "top10_grossier+fin": 0.215,
+  "importance": {
+   "vegetation": 0.111,
+   "relief": 0.049,
+   "position_altitude": 0.102
+  }
+ },
+ "chanterelle_tube|tous": {
+  "n": 95,
+  "n_fond": 4636,
+  "grossier": [
+   0.61,
+   0.02
+  ],
+  "grossier+fin": [
+   0.605,
+   0.006
+  ],
+  "fin_seul": [
+   0.526,
+   0.018
+  ],
+  "logit_grossier": [
+   0.54,
+   0.012
+  ],
+  "logit_grossier+fin": [
+   0.568,
+   0.011
+  ],
+  "top10_grossier": 0.158,
+  "top10_grossier+fin": 0.221,
+  "importance": {
+   "vegetation": 0.042,
+   "relief": -0.005,
+   "position_altitude": 0.096
+  }
+ },
+ "pied_mouton|tous": {
+  "n": 109,
+  "n_fond": 4636,
+  "grossier": [
+   0.598,
+   0.03
+  ],
+  "grossier+fin": [
+   0.55,
+   0.027
+  ],
+  "fin_seul": [
+   0.445,
+   0.013
+  ],
+  "logit_grossier": [
+   0.517,
+   0.01
+  ],
+  "logit_grossier+fin": [
+   0.519,
+   0.009
+  ],
+  "top10_grossier": 0.193,
+  "top10_grossier+fin": 0.101,
+  "importance": {
+   "vegetation": -0.025,
+   "relief": -0.016,
+   "position_altitude": 0.072
+  },
+  "region_n": 17,
+  "region_auc_H_appli": 0.514,
+  "region_H+altitude": 0.583,
+  "region_H+altitude+fin": 0.498
+ },
+ "morilles|tous": {
+  "n": 99,
+  "n_fond": 4636,
+  "grossier": [
+   0.686,
+   0.026
+  ],
+  "grossier+fin": [
+   0.774,
+   0.006
+  ],
+  "fin_seul": [
+   0.732,
+   0.011
+  ],
+  "logit_grossier": [
+   0.667,
+   0.022
+  ],
+  "logit_grossier+fin": [
+   0.798,
+   0.008
+  ],
+  "top10_grossier": 0.232,
+  "top10_grossier+fin": 0.374,
+  "importance": {
+   "vegetation": 0.194,
+   "relief": 0.002,
+   "position_altitude": 0.048
+  },
+  "region_n": 38,
+  "region_auc_H_appli": 0.565,
+  "region_H+altitude": 0.632,
+  "region_H+altitude+fin": 0.675
+ },
+ "lactaire_delicieux|tous": {
+  "n": 78,
+  "n_fond": 4636,
+  "grossier": [
+   0.648,
+   0.022
+  ],
+  "grossier+fin": [
+   0.639,
+   0.002
+  ],
+  "fin_seul": [
+   0.585,
+   0.013
+  ],
+  "logit_grossier": [
+   0.625,
+   0.002
+  ],
+  "logit_grossier+fin": [
+   0.656,
+   0.008
+  ],
+  "top10_grossier": 0.192,
+  "top10_grossier+fin": 0.218,
+  "importance": {
+   "vegetation": 0.072,
+   "relief": 0.023,
+   "position_altitude": 0.027
+  }
+ },
+ "oronge|tous": {
+  "n": 49,
+  "n_fond": 4636,
+  "grossier": [
+   0.854,
+   0.012
+  ],
+  "grossier+fin": [
+   0.847,
+   0.012
+  ],
+  "fin_seul": [
+   0.555,
+   0.011
+  ],
+  "logit_grossier": [
+   0.89,
+   0.006
+  ],
+  "logit_grossier+fin": [
+   0.861,
+   0.011
+  ],
+  "top10_grossier": 0.633,
+  "top10_grossier+fin": 0.571,
+  "importance": {
+   "vegetation": 0.021,
+   "relief": 0.013,
+   "position_altitude": 0.347
+  }
+ },
+ "cepe|sol": {
+  "n": 278,
+  "n_fond": 2384,
+  "grossier": [
+   0.525,
+   0.004
+  ],
+  "grossier+fin": [
+   0.525,
+   0.019
+  ],
+  "fin_seul": [
+   0.541,
+   0.019
+  ],
+  "logit_grossier": [
+   0.469,
+   0.007
+  ],
+  "logit_grossier+fin": [
+   0.512,
+   0.019
+  ],
+  "top10_grossier": 0.14,
+  "top10_grossier+fin": 0.14,
+  "region_n": 49,
+  "region_auc_H_appli": 0.457,
+  "region_H+altitude": 0.444,
+  "region_H+altitude+fin": 0.419
+ },
+ "girolle|sol": {
+  "n": 157,
+  "n_fond": 2384,
+  "grossier": [
+   0.666,
+   0.004
+  ],
+  "grossier+fin": [
+   0.646,
+   0.008
+  ],
+  "fin_seul": [
+   0.603,
+   0.003
+  ],
+  "logit_grossier": [
+   0.588,
+   0.013
+  ],
+  "logit_grossier+fin": [
+   0.597,
+   0.009
+  ],
+  "top10_grossier": 0.35,
+  "top10_grossier+fin": 0.299,
+  "region_n": 29,
+  "region_auc_H_appli": 0.619,
+  "region_H+altitude": 0.644,
+  "region_H+altitude+fin": 0.657
+ },
+ "trompette|sol": {
+  "n": 93,
+  "n_fond": 2384,
+  "grossier": [
+   0.64,
+   0.013
+  ],
+  "grossier+fin": [
+   0.68,
+   0.047
+  ],
+  "fin_seul": [
+   0.607,
+   0.042
+  ],
+  "logit_grossier": [
+   0.617,
+   0.011
+  ],
+  "logit_grossier+fin": [
+   0.653,
+   0.01
+  ],
+  "top10_grossier": 0.258,
+  "top10_grossier+fin": 0.247
+ },
+ "chanterelle_tube|sol": {
+  "n": 95,
+  "n_fond": 2384,
+  "grossier": [
+   0.541,
+   0.023
+  ],
+  "grossier+fin": [
+   0.568,
+   0.017
+  ],
+  "fin_seul": [
+   0.522,
+   0.017
+  ],
+  "logit_grossier": [
+   0.476,
+   0.03
+  ],
+  "logit_grossier+fin": [
+   0.548,
+   0.002
+  ],
+  "top10_grossier": 0.137,
+  "top10_grossier+fin": 0.168
+ },
+ "pied_mouton|sol": {
+  "n": 109,
+  "n_fond": 2384,
+  "grossier": [
+   0.598,
+   0.028
+  ],
+  "grossier+fin": [
+   0.55,
+   0.03
+  ],
+  "fin_seul": [
+   0.478,
+   0.008
+  ],
+  "logit_grossier": [
+   0.5,
+   0.01
+  ],
+  "logit_grossier+fin": [
+   0.548,
+   0.008
+  ],
+  "top10_grossier": 0.239,
+  "top10_grossier+fin": 0.119,
+  "region_n": 17,
+  "region_auc_H_appli": 0.524,
+  "region_H+altitude": 0.628,
+  "region_H+altitude+fin": 0.493
+ },
+ "morilles|sol": {
+  "n": 99,
+  "n_fond": 2384,
+  "grossier": [
+   0.705,
+   0.012
+  ],
+  "grossier+fin": [
+   0.792,
+   0.012
+  ],
+  "fin_seul": [
+   0.718,
+   0.005
+  ],
+  "logit_grossier": [
+   0.725,
+   0.001
+  ],
+  "logit_grossier+fin": [
+   0.804,
+   0.004
+  ],
+  "top10_grossier": 0.414,
+  "top10_grossier+fin": 0.444,
+  "region_n": 38,
+  "region_auc_H_appli": 0.565,
+  "region_H+altitude": 0.629,
+  "region_H+altitude+fin": 0.683
+ },
+ "lactaire_delicieux|sol": {
+  "n": 78,
+  "n_fond": 2384,
+  "grossier": [
+   0.628,
+   0.01
+  ],
+  "grossier+fin": [
+   0.63,
+   0.005
+  ],
+  "fin_seul": [
+   0.577,
+   0.014
+  ],
+  "logit_grossier": [
+   0.637,
+   0.012
+  ],
+  "logit_grossier+fin": [
+   0.671,
+   0.004
+  ],
+  "top10_grossier": 0.192,
+  "top10_grossier+fin": 0.231
+ },
+ "oronge|sol": {
+  "n": 49,
+  "n_fond": 2384,
+  "grossier": [
+   0.837,
+   0.012
+  ],
+  "grossier+fin": [
+   0.824,
+   0.003
+  ],
+  "fin_seul": [
+   0.51,
+   0.012
+  ],
+  "logit_grossier": [
+   0.905,
+   0.002
+  ],
+  "logit_grossier+fin": [
+   0.873,
+   0.005
+  ],
+  "top10_grossier": 0.612,
+  "top10_grossier+fin": 0.551
+ }
+}

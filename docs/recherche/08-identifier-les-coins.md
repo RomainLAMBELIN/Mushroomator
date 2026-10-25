@@ -68,11 +68,44 @@ Attente réaliste : passer de « toute la forêt se vaut » à « ces parcelles 
 
 | Étape | Contenu | Décision ou critère |
 |---|---|---|
-| 1. Expérience | Extraire LiDAR HD et relief fin autour des observations précises françaises et du groupe cible ; comparer l'AUC de l'habitat avec et sans ces variables | continuer si le gain est net (≥ +0,05) |
-| 2. Carnet et coins semblables | Dans l'application : sorties notées sur le téléphone, export possible, carte des endroits qui ressemblent à vos coins | utile dès quelques coins connus |
-| 3. Habitat à 25 m dans l'application | Tuiles d'habitat précalculées par espèce, chargées à la demande et gardées hors ligne ; la météo reste à 250 m (indice = habitat fin × conditions) | la région à 25 m compte ~330 millions de pixels par espèce : trop pour un calcul complet dans le navigateur |
-| 4. Apprentissage européen | Si l'étape 1 montre que les variables fines aident mais que les données françaises manquent | AUC vérifiée sur les observations françaises |
+| 1. Expérience | Extraire LiDAR HD et relief fin autour des observations précises françaises et du groupe cible ; comparer l'AUC de l'habitat avec et sans ces variables | **fait le 25/10/2026** : pas de gain pour le cèpe et la girolle ([section 8.7](#87-résultats-des-essais-du-25102026)) |
+| 2. Carnet et coins semblables | Dans l'application : sorties notées sur le téléphone, export possible, carte des endroits qui ressemblent à vos coins | **priorité** : utile dès quelques coins connus |
+| 3. Habitat à 25 m dans l'application | Tuiles d'habitat précalculées par espèce, chargées à la demande et gardées hors ligne | abandonné tant que les variables fines n'apportent rien (sauf pour les morilles) |
+| 4. Apprentissage européen | Si l'étape 1 montre que les variables fines aident mais que les données françaises manquent | sans objet : les variables fines n'aident pas |
 | 5. Calibration | Après une saison de sorties notées | indice exprimé en probabilité de trouver |
+
+## 8.7 Résultats des essais du 25/10/2026
+
+**Données** : observations GBIF françaises localisées à 50 m près ou mieux (cèpe 300, girolle 167, pied de mouton 115, morilles 103, chanterelle en tube 99, trompette 96, lactaire délicieux 80, oronge 49) et 10 229 observations de 30 autres champignons forestiers (même effort d'observation). Autour de chaque point : hauteur de végétation LiDAR HD (moyenne, hauteur des grands arbres, hétérogénéité, part de trouées dans des rayons de 10, 25 et 50 m), relief RGE ALTI (pente, exposition, creux et bosses de 25 à 200 m, courbure, indice d'humidité), distance aux cours d'eau (BD TOPO) et type de peuplement BD Forêt au point exact. Validation croisée par blocs spatiaux de 20 km, répétée trois fois. AUC : 0,5 = hasard, 1 = parfait.
+
+| Test | Question posée | Cèpe | Girolle | Trompette | Pied de mouton | Morilles |
+|---|---|---:|---:|---:|---:|---:|
+| 1. Face aux autres champignons | le micro-habitat de l'espèce diffère-t-il ? (données grossières → + LiDAR et relief) | 0,55 → 0,55 | 0,64 → 0,59 | 0,61 → 0,67 | 0,60 → 0,55 | 0,69 → 0,77 |
+| 2. Coin face à son voisinage | le point d'observation se distingue-t-il de points en forêt à 60–400 m, à la même distance d'un chemin ? | 0,50–0,54 | 0,50–0,60 | 0,53–0,60 | ≈ 0,50 | 0,65–0,72 |
+| 3. Parcelle face aux forêts alentour | même question avec des points à 0,5–5 km | 0,58–0,59 | 0,55 | 0,62 | 0,58–0,60 | 0,60 |
+| 3 bis. Essence au point seule | BD Forêt au point exact, toute la France | 0,58 | 0,48 | 0,60 | 0,64 | — |
+| 4. Persistance | une ancienne observation de l'espèce à moins de 500 m annonce-t-elle les suivantes ? | 0 % des 181 trouvailles récentes | 1 % | 1 % | 1 % | 1 % |
+
+Avec les seuls champignons du sol en comparaison (sans les champignons du bois), les conclusions du test 1 sont identiques.
+
+**Lecture**
+
+- Pour le cèpe et la girolle, **aucune donnée publique fine ne distingue le coin** : ni la structure du couvert vue par le LiDAR, ni le relief, ni l'eau, ni l'essence au point. Le critère fixé (≥ 0,65) n'est pas atteint.
+- **Les morilles font exception** (0,72 à 0,77) : elles fréquentent des terrains ouverts et remaniés, que la hauteur de végétation LiDAR repère bien.
+- À l'échelle des parcelles (0,5–5 km), un signal modeste apparaît (autour de 0,6 ; 0,6 à 0,64 pour l'ensemble des champignons forestiers). Il tient en partie à l'endroit où l'on marche : terrain peu pentu, forêt fermée de grands arbres.
+- Les observations publiques précises sont **trop rares pour cartographier des coins connus** : 145 observations précises de cèpes avant 2021 pour toute la France.
+- Limites : précision réelle des positions GBIF (≤ 50 m déclarés), biais d'effort des cueilleurs, tables d'hôtes calées sur Rhône-Alpes (la girolle les met en défaut ailleurs).
+
+## 8.8 La méthode retenue
+
+L'information qui fait un coin de cèpes ou de girolles (les arbres un par un, leur âge, le sol, l'histoire du mycélium) n'est dans aucune couche publique. Les concurrents ne font pas mieux : aucun ne situe les coins à fine échelle ([section 4.4](04-existant-et-concurrence.md#44-ce-que-montrent-leurs-sites-analyse-du-25102026)). La méthode satisfaisante s'appuie donc sur vos propres observations, avec l'outil pour les guider et en apprendre :
+
+1. **Prospecter les bons peuplements au bon moment** : habitat par peuplement (essence, altitude, sol) et conditions météo, la partie validée de l'outil.
+2. **Noter chaque sortie** dans un carnet privé, gardé sur le téléphone, y compris les sorties où l'on ne trouve rien.
+3. **Apprendre de vos sorties** : montrer les peuplements proches qui ressemblent à vos coins productifs, puis, avec assez de sorties notées, la probabilité réelle de trouver selon l'indice.
+4. **Afficher les observations publiques précises** à proximité comme indices, en sachant qu'elles sont rares.
+
+Critères de réussite, mesurés sur vos sorties notées : la part de sorties fructueuses augmente avec l'indice, et les coins semblables produisent plus souvent que les autres peuplements prospectés.
 
 ## Références de ce chapitre
 
