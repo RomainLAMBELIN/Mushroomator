@@ -1,7 +1,7 @@
 // Offline support: every file of the site is kept so that the map remains usable in the forest without network,
 // as well as the map tiles already viewed (up to MAX_TILES).
 // VERSION and FILES are written by the build (mushroomator/site.py): a new version of the application or of its data
-// is downloaded in full by the browser in the background, then replaces the previous one at the next opening.
+// is downloaded in full by the browser in the background, then takes over the open page, which reloads (app.js).
 const VERSION = "mushroomator-dev";
 const FILES = ["./"];
 const TILES = "mushroomator-tiles";

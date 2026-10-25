@@ -943,6 +943,18 @@ function registerWorker() {
   if ("serviceWorker" in navigator && window.isSecureContext) navigator.serviceWorker.register("sw.js").catch(() => { /* optional */ });
 }
 
+// A new version of the application or of its data, installed in the background by the worker, takes over the page:
+// it is shown at once, unless a panel is open or a field in use (it then appears at the next opening).
+if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (document.querySelector(".panel:not([hidden])") || document.activeElement?.matches("input, select, textarea")) {
+      toast("Nouvelle version installée : elle s'affichera à la prochaine ouverture.");
+    } else {
+      location.reload();
+    }
+  }, { once: true });
+}
+
 // Tiles displayed on the map are handed over to the offline worker, which keeps a copy of them.
 const shownTiles = new Set();
 let tileTimer = 0;
