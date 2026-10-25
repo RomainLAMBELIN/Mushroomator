@@ -75,6 +75,13 @@ def test_web_files_exist():
         assert (Path(ROOT) / "web" / f).exists(), f
 
 
+def test_page_elements_used_by_the_application_exist():
+    js, html = (ROOT / "web/app.js").read_text(), (ROOT / "web/index.html").read_text()
+    used = set(re.findall(r'\$\("([\w-]+)"\)', js)) | set(re.findall(r'data-(?:close|open)="([\w-]+)"', html))
+    assert len(used) > 30
+    assert used <= set(re.findall(r'\bid="([\w-]+)"', html))
+
+
 def test_offline_files_and_version(tmp_path, monkeypatch):
     """sw.js lists the files to keep offline; its version follows the application and data, not the daily weather."""
     monkeypatch.setattr(site, "SITE_DIR", tmp_path / "site")

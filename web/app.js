@@ -427,6 +427,7 @@ function fillNotebookPanel() {
 function openNotebook() {
   $("details").hidden = true;
   $("about").hidden = true;
+  $("qualite").hidden = true;
   $("carnet").hidden = false;
   const select = $("carnet-sp");
   if (!select.options.length) D.species.forEach((s) => select.add(new Option(s.nom, s.key)));
@@ -629,6 +630,7 @@ function showDetails(latlng) {
     const fields = M.coarseFields(sp, D.weather, state.day);
     const ex = M.explain(sp, D.layers, fields, D.wts, r, c);
     html += `<div class="score"><span class="big">${Math.round(ex.index * 100)}</span><span>/100<br><small>indice du ${DAY_FMT.format(new Date(D.weather.dates[state.day] + "T12:00:00"))}</small></span></div>`;
+    html += reliabilityLine(sp);
     html += `<h3>Habitat : ${fmt(hab.H * 100)}/100</h3><ul class="facts">
       <li><span>${groupName}</span>${factorBar(hab.host)}</li>
       <li><span>Altitude ${fmt(hab.elev)} m</span>${factorBar(hab.elevF)}</li>
@@ -652,6 +654,7 @@ function showDetails(latlng) {
     html += `<p class="chart-title small">Température moyenne</p>${chartSvg(s, "tg", D.weather.today, D.weather.dates[state.day], "line")}`;
   } else {
     html += `<h3>Habitat : ${fmt(hab.H * 100)}/100</h3><p>${groupName}, ${fmt(hab.elev)} m, pH ${fmt(hab.ph, 1)}.</p>`;
+    html += reliabilityLine(sp);
   }
   if (state.mode === "semblables") {
     const v = similarity(sp).grid[p];
@@ -660,6 +663,8 @@ function showDetails(latlng) {
   html += `<p class="warning small"><strong>Confusions dangereuses :</strong> ${sp.confusions}</p>`;
   html += `<p class="small"><a href="https://www.geoportail.gouv.fr/carte?c=${latlng.lng},${latlng.lat}&z=15&l0=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2::GEOPORTAIL:OGC:WMTS(1)&permalink=yes" target="_blank" rel="noopener">Ouvrir dans Géoportail</a></p>`;
   $("details-body").innerHTML = html;
+  $("about").hidden = true;
+  $("qualite").hidden = true;
   $("details").hidden = false;
 }
 
@@ -689,17 +694,167 @@ function nearestPoint(latlng) {
   return i * lons.length + j;
 }
 
-function fillAbout() {
-  const hind = D.validation?.hindcast?.species ?? {};
-  const rows = D.species.map((s) => {
-    const m = s.modele.metrics, h = hind[s.key];
-    return `<tr><td>${s.nom}<br><small class="muted">${m.observations} obs.</small></td>
-      <td>${fmt(m.auc_saison_modele_saison_seule, 2)} → <strong>${fmt(m.auc_saison, 2)}</strong></td>
-      <td>${h ? fmt(h.auc_meme_lieu_autres_jours, 2) : "—"}</td><td>${h ? fmt(h.auc_indice_vs_autres_champignons, 2) : "—"}</td></tr>`;
+// ------------------------------------------------------------------ model quality ----
+// Each test pits real finds against comparison points (another day at the same place, the spot of another fungus): the
+// AUC is the share of pairs where the find gets the better score. Reading scale as usual in ecology.
+const LEVELS = [[0.55, "≈ hasard"], [0.6, "insuffisant"], [0.7, "faible"], [0.8, "correct"], [0.9, "bon"], [Infinity, "excellent"]];
+const WHEN_TEXT = ["peu utile pour choisir le jour", "peu utile pour choisir le jour", "un simple repère pour choisir le jour",
+  "utile pour choisir le jour", "fiable pour choisir le jour", "très fiable pour choisir le jour"];
+const WHERE_TEXT = ["ne distingue pas ses coins de ceux des autres champignons",
+  "distingue à peine ses coins de ceux des autres champignons", "situe un peu ses coins", "aide à situer ses coins",
+  "situe bien ses coins", "situe très bien ses coins"];
+const WHERE_MEANING = ["Autant qu'à pile ou face : la carte montre les forêts qui conviennent à l'espèce, pas ses coins.",
+  "À peine mieux que le hasard : la carte montre surtout les forêts qui conviennent à l'espèce.",
+  "Un peu mieux que le hasard : certains peuplements lui sont nettement plus favorables.",
+  "La carte aide à repérer les peuplements où elle pousse.", "La carte repère bien les peuplements où elle pousse.",
+  "La carte repère très bien les peuplements où elle pousse."];
+const FEW_FINDS = 30;                    // below this number of finds, a score is fragile
+
+const levelOf = (auc) => LEVELS.findIndex(([max]) => auc < max);
+const pct = (auc) => `${Math.round(auc * 100)} %`;
+const fewText = (n) => (n < FEW_FINDS ? " <strong>Peu de trouvailles : chiffre fragile.</strong>" : "");
+const lowerFirst = (t) => t.charAt(0).toLowerCase() + t.slice(1);
+const listText = (a) => (a.length > 1 ? `${a.slice(0, -1).join(", ")} et ${a.at(-1)}` : a[0] ?? "");
+const rampCss = () => `linear-gradient(to right, ${RAMP.map(([v, c]) => `rgb(${c.join(",")}) ${v * 100}%`).join(", ")})`;
+
+// French typography: no line break before ; : ? ! % » nor after «.
+function frenchSpaces(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) n.data = n.data.replace(/ ([;:?!%»])/g, " $1").replace(/« /g, "« ");
+}
+
+function quality(sp) {
+  const v = D.validation?.species?.[sp.key], cv = v?.auc_validation_croisee;
+  return { m: sp.modele.metrics, v, where: cv ? (v.hotes_calibres_utilises ? cv.calibre : cv.prior) : null,
+           replay: D.validation?.hindcast?.species?.[sp.key] ?? null };
+}
+
+// Gauge from 50 % (chance) to 100 % (never wrong); `base`: score of the calendar alone, drawn over the start.
+function gauge(auc, base = null) {
+  const width = (a) => `${(Math.max(0, Math.min(1, (a - 0.5) / 0.5)) * 100).toFixed(1)}%`;
+  const k = levelOf(auc);
+  return `<div class="q-gauge" role="img" aria-label="${pct(auc)} : ${LEVELS[k][1]}${base === null ? "" : `, calendrier seul : ${pct(base)}`}">
+    <span class="q-fill q-l${k}" style="width:${width(auc)}"></span>${base === null ? "" : `<span class="q-base" style="width:${width(base)}"></span>`}</div>
+    <div class="q-gauge-scale"><span>50 % : hasard</span><b class="q-l${k}">${pct(auc)} · ${LEVELS[k][1]}</b><span>100 %</span></div>`;
+}
+
+const scoreText = (auc) => `<span class="q-score q-l${levelOf(auc)}">${pct(auc)}<small>${LEVELS[levelOf(auc)][1]}</small></span>`;
+
+// Median index (map scale) at the finds of the species and at those of other fungi.
+function indexScale(h) {
+  const a = Math.round(h.indice_median_observations * 100), b = Math.round(h.indice_median_autres_champignons * 100);
+  const pin = (v, cls) => `<span class="q-pin ${cls}${v < 6 ? " start" : v > 94 ? " end" : ""}" style="left:${v}%"><b>${v}</b></span>`;
+  return `<div class="q-index" role="img" aria-label="Indice médian : ${a} sur 100 aux trouvailles de l'espèce, ${b} sur 100 aux trouvailles d'autres champignons">
+    <span class="q-ramp" style="background:${rampCss()}"></span>${pin(a, "sp")}${pin(b, "tg")}</div>
+    <p class="q-key small"><span><i class="sp"></i>trouvailles de l'espèce</span><span><i class="tg"></i>trouvailles d'autres champignons</span></p>`;
+}
+
+function fillQuality(k) {
+  const sp = D.species[k], { m, v, where, replay } = quality(sp);
+  const years = sp.modele.trained_on?.years, kw = levelOf(m.auc_saison);
+  const gain = Math.round(m.auc_saison * 100) - Math.round(m.auc_saison_modele_saison_seule * 100);
+  let html = `<p class="q-verdict"><strong>${sp.nom} :</strong> ${WHEN_TEXT[kw]} ; ${where === null
+    ? "habitat non testé, faute de trouvailles précises dans la région" : WHERE_TEXT[levelOf(where)]}.</p>`;
+  html += `<section class="q-test"><h3>1. Quand : quel jour de la saison ?</h3>${gauge(m.auc_saison, m.auc_saison_modele_saison_seule)}
+    <p class="q-key small"><span><i class="q-base"></i>calendrier seul</span><span><i class="q-fill q-l${kw}"></i>avec la météo</span></p>
+    <p>Au même endroit, entre le jour d'une trouvaille et un autre jour de la saison (${seasonText(sp)}) pris au hasard,
+      l'indice donne la meilleure note au jour de la trouvaille dans <strong>${pct(m.auc_saison)}</strong> des cas. Le
+      calendrier seul y arrive dans ${pct(m.auc_saison_modele_saison_seule)} des cas : la météo des semaines précédentes
+      ${gain > 0 ? `ajoute ${gain} point${gain > 1 ? "s" : ""}` : "n'ajoute presque rien"}.</p>
+    <p class="small muted">${fmt(m.observations)} trouvailles datées en France et en Suisse${years ? `, de ${years[0]} à ${years[1]}` : ""} ;
+      chaque année est testée par un modèle entraîné sans elle.${Number.isFinite(m.auc_saison_region)
+        ? ` Dans la région : ${pct(m.auc_saison_region)} (${fmt(m.observations_region)} trouvailles).` : ""}</p></section>`;
+  html += `<section class="q-test"><h3>2. Où : quel coin de forêt ?</h3>`;
+  if (where === null) {
+    html += `<p>Pas assez de trouvailles précises dans la région pour tester l'habitat (${v?.records ?? 0}).</p>`;
+  } else {
+    html += `${gauge(where)}<p>Entre le coin d'une trouvaille et le coin où un autre champignon forestier a été trouvé,
+      l'habitat (arbres, altitude, sol) donne la meilleure note au premier dans <strong>${pct(where)}</strong> des cas.
+      ${WHERE_MEANING[levelOf(where)]}</p>
+      <p class="small muted">${v.records} trouvailles précises dans la région, comparées à ${fmt(D.validation.target_group_records)}
+      trouvailles d'autres champignons forestiers : mêmes cueilleurs, mêmes forêts, ce qui neutralise l'effet des
+      endroits très fréquentés. Arbres-hôtes ${v.hotes_calibres_utilises ? "ajustés sur ces trouvailles" : "fixés d'après la littérature"},
+      testés sur des trouvailles mises de côté.${fewText(v.records)}</p>`;
+  }
+  html += `</section><section class="q-test"><h3>3. Rejeu des saisons passées</h3>`;
+  if (!replay) {
+    html += "<p>Pas de rejeu : moins de 20 trouvailles précises et datées dans la région.</p>";
+  } else {
+    const [from, to] = D.validation.hindcast.period;
+    const offSeason = replay.indice_median_autres_champignons < 0.05;
+    html += `<p>L'application a recalculé son indice au lieu et au jour de ${replay.observations} trouvailles dans la région,
+      de ${from.slice(0, 4)} à ${to.slice(0, 4)} : il valait <strong>${Math.round(replay.indice_median_observations * 100)}/100</strong>
+      en médiane, contre ${Math.round(replay.indice_median_autres_champignons * 100)}/100 aux trouvailles d'autres champignons.</p>
+      ${indexScale(replay)}<ul class="facts">
+      <li><span>Même endroit : jour de la trouvaille contre un jour quelconque de l'année</span>${scoreText(replay.auc_meme_lieu_autres_jours)}</li>
+      <li><span>Contre les trouvailles d'autres champignons forestiers, à leur lieu et à leur date</span>${scoreText(replay.auc_indice_vs_autres_champignons)}</li></ul>
+      <p class="small muted">Météo observée (E-OBS), indice calculé exactement comme dans l'application. Le premier chiffre
+      doit beaucoup à la saison : un jour hors saison se reconnaît facilement. Le second mêle le où et le quand${offSeason
+        ? " ; ici, la plupart des autres champignons sont trouvés hors de la saison de l'espèce, et ce score vient surtout du calendrier" : ""}.${fewText(replay.observations)}</p>`;
+  }
+  $("qualite-body").innerHTML = html + "</section>";
+  frenchSpaces($("qualite-body"));
+}
+
+function initQuality() {
+  const select = $("qualite-sp");
+  D.species.forEach((s, k) => select.add(new Option(s.nom, k)));
+  select.addEventListener("change", () => fillQuality(Number(select.value)));
+  $("qualite-scale").innerHTML = LEVELS.map(([max, label], k) => {
+    const lo = k ? Math.round(LEVELS[k - 1][0] * 100) : 0, hi = Math.round(max * 100);
+    return `<li><b class="q-l${k}"><i class="q-fill"></i>${label}</b><span>${!k ? `moins de ${hi} %` : max === Infinity ? `${lo} % et plus` : `${lo} à ${hi} %`}</span></li>`;
   }).join("");
-  const period = D.validation?.hindcast?.period;
-  $("about-metrics").innerHTML = `<div class="table-wrap"><table><thead><tr><th>Espèce</th><th>Conditions en saison<br><small>saison seule → avec météo</small></th><th>Rejeu : jour trouvé vs autres jours</th><th>Rejeu : vs autres champignons</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <p class="small muted">AUC : 0,5 = hasard, 1 = parfait. <strong>Conditions</strong> : capacité à distinguer les jours d'observation des autres jours de la saison, sur des années non vues à l'entraînement (France et Suisse). <strong>Rejeu</strong>${period ? ` (${period[0].slice(0, 4)}–${period[1].slice(0, 4)}, Rhône-Alpes)` : ""} : indice calculé par l'application aux lieux et dates d'observations réelles, comparé au même lieu d'autres jours de l'année, puis aux observations d'autres champignons forestiers. « — » : trop peu d'observations précises dans la région.</p>`;
+  const tested = D.species.map(quality).map((q, k) => [q.where, lowerFirst(D.species[k].nom)]).filter(([w]) => w !== null);
+  const good = tested.filter(([w]) => w >= 0.6).map(([, n]) => n), poor = tested.filter(([w]) => w < 0.6).map(([, n]) => n);
+  $("qualite-terrain").innerHTML = `<li><strong>Le quand est le point fort.</strong> Servez-vous de la frise des jours pour
+      choisir quand sortir, et comparez les jours entre eux pour un même coin.</li>
+    <li><strong>Le où dépend de l'espèce.</strong> ${good.length ? `La carte aide aussi à repérer les peuplements favorables
+      pour : ${listText(good)}. ` : ""}${poor.length ? `Pour ${good.length ? "les autres espèces" : "les espèces testées"}
+      (${listText(poor)}), elle montre les forêts qui leur conviennent, pas leurs coins. ` : ""}Prospectez ces forêts et notez
+      vos trouvailles : la vue « Semblables » vous montrera les peuplements qui ressemblent à vos coins.</li>
+    <li><strong>Un indice n'est pas une probabilité.</strong> 80/100 ne veut pas dire 80 % de chances d'en trouver : l'indice
+      classe les lieux et les jours, du moins bon au meilleur.</li>`;
+  const cell = (auc) => (Number.isFinite(auc) ? `<td><span class="q-l${levelOf(auc)}">${Math.round(auc * 100)}</span></td>` : '<td class="muted">—</td>');
+  $("qualite-all").innerHTML = `<div class="table-wrap"><table class="q-table"><thead><tr><th>Espèce</th><th>Quand</th><th>Où</th><th>Rejeu</th></tr></thead><tbody>${
+    D.species.map((sp, k) => {
+      const { m, where, replay } = quality(sp);
+      return `<tr><td><button type="button" class="link" data-quality="${k}">${sp.nom}</button></td>${cell(m.auc_saison)}${cell(where)}${cell(replay?.auc_indice_vs_autres_champignons)}</tr>`;
+    }).join("")}</tbody></table></div>
+    <p class="small muted">En % (50 : hasard, 100 : parfait). Rejeu : contre les trouvailles d'autres champignons.
+      « — » : trop peu de trouvailles précises dans la région. Touchez une espèce pour voir le détail.</p>`;
+  $("qualite-all").addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-quality]");
+    if (!b) return;
+    select.value = b.dataset.quality;
+    fillQuality(Number(b.dataset.quality));
+    $("qualite").scrollTop = 0;
+  });
+  $("qualite-carnet").addEventListener("click", openNotebook);
+  document.addEventListener("click", (ev) => { if (ev.target.closest('[data-open="qualite"]')) openQuality(); });
+  frenchSpaces($("qualite"));
+}
+
+function openQuality() {
+  $("details").hidden = true;
+  $("about").hidden = true;
+  if (!$("carnet").hidden) document.querySelector('[data-close="carnet"]').click();
+  $("qualite-sp").value = state.sp;
+  fillQuality(state.sp);
+  const lines = notebook.entries.length ? notebookStats() : [];
+  $("qualite-carnet-stat").textContent = lines.length ? `Votre carnet : ${lines[0]} ${lines.at(-1)}` : "";
+  $("qualite").hidden = false;
+  $("qualite").scrollTop = 0;
+}
+
+// Reliability of the species, next to the score of a point.
+function reliabilityLine(sp) {
+  const { m, where } = quality(sp);
+  const tag = (auc) => (auc === null ? "<b>non testé</b>" : `<b class="q-l${levelOf(auc)}">${LEVELS[levelOf(auc)][1]}</b>`);
+  return `<p class="small">Fiabilité pour cette espèce : quand ${tag(m.auc_saison)}, où ${tag(where)} ·
+    <button type="button" class="link" data-open="qualite">comprendre</button></p>`;
+}
+
+function fillAbout() {
   $("about-sources").innerHTML = `${D.layersMeta.attribution}. Météo : ${D.weather ? D.weather.source : "—"}. Modèles entraînés sur les observations GBIF (France, Suisse) et la météo E-OBS (Copernicus/ECA&D, usage non commercial).`;
   $("about-version").textContent = `Version ${D.version}${D.weather ? ` · météo du ${D.weather.today}, générée le ${new Date(D.weather.generated).toLocaleString("fr-FR")}` : ""}`;
 }
@@ -737,7 +892,7 @@ async function init() {
     state.mode = "habitat";
   }
   palette = buildPalette();
-  $("ramp").style.background = `linear-gradient(to right, ${RAMP.map(([v, c]) => `rgb(${c.join(",")}) ${v * 100}%`).join(", ")})`;
+  $("ramp").style.background = rampCss();
   initMap();
   drawNotebook();
   initSearch();
@@ -746,6 +901,7 @@ async function init() {
   buildDayStrip();
   updateDayUI();
   fillAbout();
+  initQuality();
   $("loading").hidden = true;
   if (!store.get("safety-ok", false)) $("safety").hidden = false;
 }

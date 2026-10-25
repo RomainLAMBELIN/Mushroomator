@@ -80,10 +80,50 @@
       jusqu'à 5 litres sauf arrêté contraire ; au-delà de 10 litres sans autorisation, c'est un délit. Consultez les
       arrêtés préfectoraux et respectez les espaces protégés.</p>
     <h3>Qualité des modèles</h3>
-    <div id="about-metrics"></div>
+    <p>Chaque modèle a été testé sur des observations réelles qu'il n'avait pas vues pendant son entraînement. En bref :
+      l'indice aide surtout à choisir <strong>le jour</strong> ; pour la plupart des espèces, il ne situe pas
+      <strong>les coins</strong> mieux que « une forêt qui leur convient ».</p>
+    <button type="button" class="chip" data-open="qualite">Fiabilité espèce par espèce</button>
     <h3>Données</h3>
     <p class="small" id="about-sources"></p>
     <p class="small muted" id="about-version"></p>
+  </aside>
+
+  <aside class="card panel" id="qualite" hidden>
+    <button class="icon-btn close" data-close="qualite" aria-label="Fermer">×</button>
+    <h2>Fiabilité de l'indice</h2>
+    <p class="small muted">Chaque modèle a été confronté à des trouvailles réelles qu'il n'avait pas vues pendant son
+      entraînement : trois tests, du jour au coin, puis l'indice complet rejoué sur les saisons passées.</p>
+    <label class="field"><span>Espèce</span><select id="qualite-sp"></select></label>
+    <div id="qualite-body"></div>
+    <h3>Comment lire ces pourcentages</h3>
+    <p>Chaque test oppose une vraie trouvaille à un point de comparaison : un autre jour au même endroit, ou le coin où
+      un autre champignon a été trouvé. Le pourcentage dit combien de fois l'indice donne la meilleure note à la
+      trouvaille. À 50 %, il ne fait pas mieux qu'à pile ou face ; à 100 %, il ne se tromperait jamais.</p>
+    <ul class="q-scale" id="qualite-scale" aria-label="Échelle de lecture"></ul>
+    <p class="small muted">Les points de comparaison ne sont pas forcément mauvais : simplement, personne n'y a rien
+      signalé. 100 % est donc hors d'atteinte, et dès 70 % l'indice apporte une information utile. Échelle de lecture
+      courante en écologie ; les statisticiens appellent ce score l'AUC (de 0,5 à 1).</p>
+    <h3>Sur le terrain</h3>
+    <ul class="q-list" id="qualite-terrain"></ul>
+    <h3>Limites</h3>
+    <ul class="q-list">
+      <li>Les trouvailles viennent de sciences participatives (GBIF) : elles sont plus nombreuses près des chemins et des
+        lieux fréquentés, et rares pour certaines espèces dans la région.</li>
+      <li>La pluie vient d'une grille d'environ 20 km : un orage local ou un versant plus arrosé ne se voient pas.</li>
+      <li>Les jours à venir reposent sur la prévision météo, moins sûre à mesure qu'on s'éloigne d'aujourd'hui.</li>
+      <li>Seules les forêts, landes et pelouses de la BD Forêt ont un indice : vergers, jardins et prairies, où poussent
+        souvent les morilles, n'en ont pas.</li>
+      <li>Des données plus fines (hauteur des arbres et relief au mètre près, cours d'eau) ne situent pas mieux les coins
+        de cèpe, de girolle ou de pied de mouton ; les morilles, elles, en profitent (essais d'octobre 2026).</li>
+    </ul>
+    <h3>Toutes les espèces</h3>
+    <div id="qualite-all"></div>
+    <h3>Votre propre mesure</h3>
+    <p>Le test qui compte le plus, c'est le vôtre : notez vos sorties dans le carnet, y compris quand vous ne trouvez
+      rien. Dès 10 sorties notées le jour même, il affiche votre taux de réussite selon l'indice du jour.</p>
+    <p class="small" id="qualite-carnet-stat"></p>
+    <button type="button" class="chip" id="qualite-carnet">📓 Ouvrir le carnet</button>
   </aside>
 
   <aside class="card panel" id="carnet" hidden>
