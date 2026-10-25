@@ -17,7 +17,7 @@ Aujourd'hui, l'outil est fiable pour le *quand* (météo des semaines précéden
 
 **Adresse : https://romainlambelin.github.io/Mushroomator/** (une fois la mise en ligne ci-dessous faite).
 
-- La carte s'ouvre dans le navigateur du téléphone (Safari, Chrome, Firefox) : pas de magasin d'applications, pas d'ordinateur à laisser allumé. La météo est mise à jour **chaque matin** par GitHub.
+- La carte s'ouvre dans le navigateur du téléphone (Safari, Chrome, Firefox) : pas de magasin d'applications, pas d'ordinateur à laisser allumé. La météo est mise à jour **chaque nuit** par GitHub.
 - Choisissez l'**espèce** et le **jour** (J-7 à J+7) ; la frise montre les conditions moyennes de chaque jour. **Indice** = habitat × conditions ; **Habitat** = arbres-hôtes, altitude, sol ; **Conditions** = météo comparée aux jours habituels de la saison.
 - **Rechercher un lieu** avec la barre du haut : commune, lieu-dit, sommet, col, forêt, lac ou adresse (service de recherche de l'IGN), ou des coordonnées GPS (« 45.325, 5.764 », utilisables même hors ligne).
 - **Touchez** la carte pour voir le détail du calcul et la météo du secteur ; le bouton ◎ centre la carte sur votre position.
@@ -33,7 +33,7 @@ Aujourd'hui, l'outil est fiable pour le *quand* (météo des semaines précéden
 2. *Settings → Pages → Build and deployment → Source* : **GitHub Actions**.
 3. *Actions → Mise à jour de la carte → Run workflow* (~10 minutes). L'adresse s'affiche ensuite dans *Settings → Pages* et dans le résumé du workflow.
 
-Ensuite, tout est automatique ([`.github/workflows/carte.yml`](.github/workflows/carte.yml)) : chaque matin (lancement à 4 h 17 UTC, carte en ligne vers 5 h 30 en hiver et 6 h 30 en été ; GitHub retarde parfois les tâches planifiées) et à chaque modification de l'application, le workflow lance les tests, télécharge la météo puis publie la carte. Si une étape échoue, la carte de la veille reste en ligne et l'onglet *Actions* montre l'erreur (*Re-run jobs* pour relancer). Si la mise à jour du matin n'a pas eu lieu, *Run workflow* la lance à la main, avec la dernière prévision. GitHub suspend les tâches planifiées d'un dépôt public resté 60 jours sans modification : un clic sur *Enable workflow* dans l'onglet *Actions* les relance.
+Ensuite, tout est automatique ([`.github/workflows/carte.yml`](.github/workflows/carte.yml)) : chaque nuit et à chaque modification de l'application, le workflow lance les tests, télécharge la météo puis publie la carte. La mise à jour de la nuit est lancée à 1 h 17 UTC (carte en ligne vers 2 h 30 en hiver, 3 h 30 en été). GitHub démarre parfois ces tâches avec plusieurs heures de retard, ou pas du tout : deux autres tentatives, à 3 h 47 et 6 h 17 UTC, publient la carte si aucune n'a encore réussi ce jour-là, et ne font rien sinon. En attendant, la carte calcule le jour même avec la prévision de la veille et l'indique (« mise à jour du … »). Si toutes les tentatives échouent, la carte de la veille reste en ligne et l'onglet *Actions* montre l'erreur. *Run workflow* lance à tout moment une mise à jour à la main, avec la dernière prévision. GitHub suspend les tâches planifiées d'un dépôt public resté 60 jours sans modification : un clic sur *Enable workflow* dans l'onglet *Actions* les relance.
 
 ## Sur un ordinateur (facultatif)
 

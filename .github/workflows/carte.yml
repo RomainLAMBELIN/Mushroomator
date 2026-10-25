@@ -4,12 +4,17 @@ name: Mise à jour de la carte
 
 on:
   schedule:
-    - cron: "17 4 * * *"     # every day at 04:17 UTC
+    # GitHub sometimes starts scheduled runs hours late (25/10/2026: the 04:17 UTC run started at 09:08) or drops them:
+    # three attempts every night, the first one that succeeds publishes the map of the day and the others do nothing
+    - cron: "17 1 * * *"
+    - cron: "47 3 * * *"
+    - cron: "17 6 * * *"
   push:
     paths: ["web/**", "mushroomator/**", "assets/**", "pyproject.toml", ".github/workflows/carte.yml"]
   workflow_dispatch:
 
 permissions:
+  actions: read           # earlier runs of the day
   contents: read
   pages: write
   id-token: write
@@ -33,23 +38,31 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: python -m pytest -q
 
-      - name: GitHub Pages est-il activé ?
+      - name: Faut-il publier ?
         id: pages
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           default=$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)
           source=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type 2>/dev/null) || source=""
-          echo "day=$(TZ=Europe/Paris date +%F)" >> "$GITHUB_OUTPUT"   # same day as mushroomator.weather.fetch
+          day=$(TZ=Europe/Paris date +%F)                          # same day as mushroomator.weather.fetch
+          midnight=$(date -u -d "TZ=\"Europe/Paris\" $day" +%FT%TZ)
+          echo "day=$day" >> "$GITHUB_OUTPUT"
+          # latest successful nightly run or "Run workflow" (when unknown, the nightly run publishes anyway)
+          last=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/carte.yml/runs?branch=$default&status=success&per_page=100" \
+            --jq '[.workflow_runs[] | select(.event == "schedule" or .event == "workflow_dispatch") | .created_at] | max // ""') || last=""
+          echo "Dernière mise à jour quotidienne ou manuelle réussie : ${last:-inconnue}"
           if [ "$GITHUB_REF_NAME" != "$default" ]; then
             echo "::notice::Branche $GITHUB_REF_NAME : tests seulement, la carte est publiée depuis $default."
           elif [ "$source" != "workflow" ]; then
             echo "::warning title=Carte non publiée::Activez GitHub Pages (Settings → Pages → Source : GitHub Actions), puis relancez ce workflow."
+          elif [ "$GITHUB_EVENT_NAME" = schedule ] && [[ "$last" > "$midnight" ]]; then
+            echo "::notice::Carte du $day déjà publiée : rien à faire."
           else
             echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # the morning run and "Run workflow" always download the weather (latest forecast); a run for a change of the
+      # the nightly run and "Run workflow" always download the weather (latest forecast); a run for a change of the
       # application reuses the latest download of the day
       - id: weather
         if: steps.pages.outputs.publish == 'true' && github.event_name == 'push'

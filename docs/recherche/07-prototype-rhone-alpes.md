@@ -13,7 +13,7 @@ Premier prototype complet pour un usage personnel et gratuit : carte web (utilis
 - **Recherche de lieux** : géocodage IGN Géoplateforme (communes, lieux-dits, sommets, cols, forêts, lacs, adresses), limité aux départements cartographiés et classé pour la cueillette (lieux naturels avant les rues) ; les coordonnées GPS sont acceptées, même hors ligne.
 - **Clic sur la carte** : décomposition complète du score (essence dominante, altitude, pH, effet de chaque variable météo) et graphiques de pluie et de température du secteur (45 jours passés + prévision).
 - Sécurité : avertissement au premier lancement, confusions dangereuses par espèce, rappel des règles de cueillette.
-- **Sur téléphone, sans installation** : site statique publié sur GitHub Pages et mis à jour chaque matin par GitHub Actions (tests, météo, déploiement).
+- **Sur téléphone, sans installation** : site statique publié sur GitHub Pages et mis à jour chaque nuit par GitHub Actions (tests, météo, déploiement).
 - Hors-ligne : l'application, les dernières données et les fonds de carte déjà consultés (jusqu'à 1 500 tuiles) restent disponibles sans réseau. Les jours sont nommés d'après la date du téléphone, avec une mention quand la météo enregistrée date d'un jour précédent.
 
 ## 7.2 Architecture
