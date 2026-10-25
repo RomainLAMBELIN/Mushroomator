@@ -31,7 +31,7 @@ Informations relevées le 24/10/2026 sur les sites des services (déclarations d
 
 **Le marché existe et il est encombré.** Au moins sept services visent déjà le cueilleur français, dont plusieurs lancés en 2025–2026. Développer « une carte de pousse de plus » n'a de sens que si elle est **nettement meilleure** et **le prouve**.
 
-Aucun service ne publie aujourd'hui :
+Hormis Boletik, qui publie depuis octobre 2026 une page de mesures honnête mais limitée au cèpe ([section 4.4](#44-ce-que-montrent-leurs-sites-analyse-du-25102026)), aucun service ne publie :
 - de **validation rigoureuse** (AUC, enrichissement, calibration, rejeu de saisons passées) ;
 - de **probabilité calibrée** avec incertitude (tous affichent un score 0–100 arbitraire) ;
 - de **méthode documentée** (seuls le ČHMÚ et Champiscope donnent quelques règles).
@@ -45,5 +45,25 @@ Aucun service ne publie aujourd'hui :
 5. **Sécurité intégrée** : chaque espèce affichée avec ses confusions dangereuses ; aucune aide à l'identification par photo ; rappel ANSES.
 6. **Éthique et réglementation** : affichage forêts publiques / privées, rappel des quotas, pas de partage de coins, agrégation des retours.
 7. **Ouverture** : données et code de recherche ouverts, partenariats (sociétés mycologiques, CTFC, ONF), ce qui peut aussi ouvrir l'accès à des données d'absence.
+
+## 4.4 Ce que montrent leurs sites (analyse du 25/10/2026)
+
+Analyse des pages publiques, des requêtes faites par leurs applications et des réponses de leurs interfaces publiques, une visite par site, sans compte ni contournement.
+
+| Service | Ce qui a été observé |
+|---|---|
+| **Champiscope** | Score météo à règles, par secteur d'une grille couvrant la France. L'interface de la page (`/api/pousse-report?lat=…&lon=…`) renvoie pour chaque jour un score 0–100, un palier (« Pousse probable », « Fenêtre idéale ») et quatre facteurs : **réserve en eau de la litière** (seau de 40 mm), **pluie déclenchante et délai depuis** (« 101 mm il y a 16 j, latence idéale »), **température moyenne**, **saison** ; plus 30 jours de pluie et 7 jours d'historique ; prévision au-delà de 1 jour réservée aux comptes. Aucune couche d'habitat : le site refuse explicitement de montrer des coins (« des secteurs et des villes, pas des parcelles ni des sous-bois »). |
+| **Waldschatzfinder** | Calcul côté serveur (`process.php?ort=lat,lon`). La page de résultat affiche une « chance du jour » en pourcentage et quatre facteurs à seuils : **pluie sur 14 jours** (bonne dès ~40 mm), **jours depuis la dernière forte pluie** (idéal de 5 à 16), **maximum journalier moyen sur 7 jours** (idéal de 12 à 22 °C), **humidité de l'air sur 7 jours** (bonne dès 80 %). La carte des « hotspots » (sol, essences) est réservée aux comptes. |
+| **Boletik** | Page de mesures publique ([boletik.fr/comment-on-mesure](https://boletik.fr/comment-on-mesure), 14/10/2026), sur 1 427 observations GBIF de cèpes : face aux autres champignons de forêt, la meilleure classe d'habitat (note ≥ 85) compte **2,1 fois plus de cèpes**, mais seuls 17 points de comparaison y tombent ; indice de Boyce 0,90. Pour le jour : calendrier seul 73/100, score météo 64/100, les deux 74/100 ; au sein d'un même mois, 54/100. Une pluie de 30 mm ou plus 10 à 30 jours avant précède 48 % des jours de trouvaille contre 39 % des autres jours ; l'humidité du sol en surface ne distingue rien. Données : BD Forêt, OCS GE, relief, géologie BRGM, CORINE, Open-Meteo. L'application affiche une couche forêt précalculée en images (PMTiles, zooms 4 à 9, pixels de 200 à 300 m) sur fond IGN. |
+| **Mycora** | Carte réservée aux comptes ; sources citées sur la page d'accueil : NASA, Copernicus, JRC, ISRIC (sols), Open-Meteo. |
+| **ShroomCast, The Mycologist** | Derrière un captcha ou un abonnement : rien de plus que leurs déclarations ([section 4.2](#42-applications-commerciales-france-et-europe)). |
+| **Atlas des champignons, 3BMeteo** | Indices calculés côté serveur et livrés dans la page, sans détail de méthode. |
+
+**Lecture**
+
+1. **Le « quand » repose partout sur des règles simples** : une pluie déclenchante (30 à 40 mm), un délai de 5 à 30 jours, une température, la saison. Notre modèle apprend ces mêmes relations sur les observations au lieu de les fixer, et les valide sur des années non vues.
+2. **Personne ne situe les coins à fine échelle** : Champiscope s'y refuse, Waldschatzfinder et Boletik raisonnent par secteur ou à environ 250 m. Le meilleur résultat publié, celui de Boletik, reste modeste et fragile (2,1 fois plus de cèpes dans la meilleure classe, sur 17 points de comparaison).
+3. **Idées à reprendre** : tester un seau de litière de faible capacité (40 mm) comme variable de déclenchement ; afficher explicitement le délai depuis la pluie déclenchante, très parlant pour l'utilisateur ; un libellé de saison ; des retours « trouvé / rien » anonymes et désactivés par défaut.
+4. **Différenciation** : l'échelle du coin (LiDAR HD, relief fin), qui est l'objet du [chapitre 8](08-identifier-les-coins.md).
 
 [Chapitre suivant : étude de faisabilité →](05-etude-de-faisabilite.md)
