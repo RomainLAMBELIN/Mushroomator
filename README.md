@@ -33,7 +33,7 @@ Aujourd'hui, l'outil est fiable pour le *quand* (météo des semaines précéden
 2. *Settings → Pages → Build and deployment → Source* : **GitHub Actions**.
 3. *Actions → Mise à jour de la carte → Run workflow* (~10 minutes). L'adresse s'affiche ensuite dans *Settings → Pages* et dans le résumé du workflow.
 
-Ensuite, tout est automatique ([`.github/workflows/carte.yml`](.github/workflows/carte.yml)) : chaque matin (lancement à 4 h 17 UTC, carte en ligne vers 5 h 30 en hiver et 6 h 30 en été ; GitHub retarde parfois les tâches planifiées) et à chaque modification de l'application, le workflow lance les tests, télécharge la météo puis publie la carte. Si une étape échoue, la carte de la veille reste en ligne et l'onglet *Actions* montre l'erreur (*Re-run jobs* pour relancer). GitHub suspend les tâches planifiées d'un dépôt public resté 60 jours sans modification : un clic sur *Enable workflow* dans l'onglet *Actions* les relance.
+Ensuite, tout est automatique ([`.github/workflows/carte.yml`](.github/workflows/carte.yml)) : chaque matin (lancement à 4 h 17 UTC, carte en ligne vers 5 h 30 en hiver et 6 h 30 en été ; GitHub retarde parfois les tâches planifiées) et à chaque modification de l'application, le workflow lance les tests, télécharge la météo puis publie la carte. Si une étape échoue, la carte de la veille reste en ligne et l'onglet *Actions* montre l'erreur (*Re-run jobs* pour relancer). Si la mise à jour du matin n'a pas eu lieu, *Run workflow* la lance à la main, avec la dernière prévision. GitHub suspend les tâches planifiées d'un dépôt public resté 60 jours sans modification : un clic sur *Enable workflow* dans l'onglet *Actions* les relance.
 
 ## Sur un ordinateur (facultatif)
 

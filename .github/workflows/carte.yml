@@ -49,10 +49,10 @@ jobs:
             echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # the morning run always downloads the weather (latest forecast); a run for a change of the application
-      # reuses the latest download of the day
+      # the morning run and "Run workflow" always download the weather (latest forecast); a run for a change of the
+      # application reuses the latest download of the day
       - id: weather
-        if: steps.pages.outputs.publish == 'true' && github.event_name != 'schedule'
+        if: steps.pages.outputs.publish == 'true' && github.event_name == 'push'
         uses: actions/cache/restore@v4
         with:
           path: data/weather
