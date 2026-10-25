@@ -96,3 +96,27 @@ def test_offline_files_and_version(tmp_path, monkeypatch):
     monkeypatch.setattr(site, "WEB_DIR", web)
     site.build(RHONE_ALPES.key, log=lambda *a: None)
     assert version() != first
+
+
+def test_similarity_to_notebook_spots(tmp_path):
+    """Places like the user's productive spots: 1 on the spot, 0 on another forest type, nothing out of reach."""
+    script = tmp_path / "sim.mjs"
+    script.write_text(f"""
+import * as M from {json.dumps((ROOT / 'web/model.js').as_uri())};
+const nx = 60, ny = 60;
+const grid = {{ x0: 0, y1: 6000 * 250, res: 250, nx, ny }};
+const host = new Uint8Array(nx * ny).fill(3), elev = new Uint16Array(nx * ny).fill(800), ph10 = new Uint8Array(nx * ny).fill(55);
+for (let r = 0; r < ny; r++) for (let c = 28; c < nx; c++) host[r * nx + c] = 7;      // another forest type on the east side
+for (let c = 12; c < 17; c++) elev[30 * nx + c] = 1400;                                 // much higher ground, same type
+const lonOf = (c) => (c + 0.5) * 250 / 6378137 * 180 / Math.PI;
+const latOf = (r) => (2 * Math.atan(Math.exp((6000 * 250 - (r + 0.5) * 250) / 6378137)) - Math.PI / 2) * 180 / Math.PI;
+const s = M.similarityGrid({{ grid, host, elev, ph10 }}, [{{ lat: latOf(30), lon: lonOf(20) }}], 3);   // radius: 13 pixels here
+const at = (r, c) => s[r * nx + c];
+console.log(JSON.stringify({{ spot: at(30, 20), near: at(30, 22), other: at(30, 30), high: at(30, 14), far: at(5, 20) }}));
+""")
+    v = json.loads(subprocess.run(["node", str(script)], capture_output=True, text=True, check=True).stdout)
+    assert v["spot"] == pytest.approx(1.0)
+    assert 0.5 < v["near"] < 1.0                 # same stand nearby, a little less with distance
+    assert v["other"] == 0                       # other forest type within reach
+    assert v["high"] < 0.01                      # same type but 600 m higher
+    assert v["far"] is None                      # beyond the radius (NaN)

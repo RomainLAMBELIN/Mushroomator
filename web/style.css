@@ -87,8 +87,32 @@ a { color: var(--accent); }
 .search-results li[aria-selected="true"], .search-results li:hover { background: var(--surface-2); }
 .search-results small { color: var(--muted); font-size: 12.5px; }
 .search-results li.note { cursor: default; color: var(--text-2); font-size: 13px; background: none; }
-.search-results[hidden], #top.searching .field, #top.searching .segmented { display: none; }
+.search-results[hidden], #top.searching .field, #top.searching .segmented, .field[hidden] { display: none; }
 .place-label { font-weight: 600; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.grow { flex: 1; min-width: 120px; }
+.chip {
+  border: 1px solid var(--line); background: var(--surface-2); color: var(--text); border-radius: 16px;
+  padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer;
+}
+.carnet-form { display: flex; flex-direction: column; gap: 10px; margin: 10px 0 4px; }
+.carnet-form .segmented { margin-top: 0; }
+.carnet-form input[type="text"], .carnet-form input[type="date"], .carnet-form select {
+  font: inherit; font-size: 16px; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface-2); color: var(--text); box-sizing: border-box; width: 100%;
+}
+.carnet-list { list-style: none; margin: 0 0 10px; padding: 0; }
+.carnet-list li { padding: 8px 4px; border-top: 1px solid var(--line); cursor: pointer; }
+.carnet-list li:first-child { border-top: 0; }
+.carnet-list .ok { color: var(--up); font-weight: 600; }
+.carnet-list .ko { color: var(--muted); font-weight: 600; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(max(24px, env(safe-area-inset-bottom)) + 8px);
+  z-index: 2500; background: var(--text); color: var(--surface); padding: 9px 14px; border-radius: 18px; font-size: 14px;
+  box-shadow: var(--shadow); max-width: calc(100vw - 40px);
+}
+.toast[hidden] { display: none; }
+.carnet-btn { width: 34px; height: 34px; background: #fff; border: 2px solid rgba(0,0,0,.2); font-size: 17px; cursor: pointer; }
 .icon-btn {
   border: 1px solid var(--line); background: var(--surface-2); color: var(--text); border-radius: 50%;
   width: 32px; height: 32px; font-size: 16px; cursor: pointer; flex: none;
@@ -165,5 +189,6 @@ td:nth-child(n+2) { font-variant-numeric: tabular-nums; }
   .bottom { padding: 10px; }
   #legend-text { display: none; }
   .day-strip { height: 44px; margin-top: 4px; }
+  .segmented button { font-size: 12px; padding: 7px 2px; }
   .panel { top: auto; height: 62vh; height: 62dvh; left: 10px; right: 10px; width: auto; }
 }

@@ -9,6 +9,7 @@ Premier prototype complet pour un usage personnel et gratuit : carte web (utilis
 - **Carte de chaleur** à ~175 m de résolution (pixels Web Mercator de 250 m), pour le jour choisi entre **J-7 et J+7**.
 - Trois couches : **Indice** = habitat × conditions ; **Habitat** (arbres-hôtes, altitude, pH) ; **Conditions** (météo comparée aux jours habituels de la saison).
 - **Frise des 15 jours** : conditions moyennes en habitat favorable, pour repérer le meilleur jour.
+- **Carnet de sorties et coins semblables** : sorties notées sur le téléphone (trouvé / rien trouvé, indice du jour), export et import ; vue des peuplements qui ressemblent aux coins productifs ([chapitre 8](08-identifier-les-coins.md#88-la-méthode-retenue)).
 - **Recherche de lieux** : géocodage IGN Géoplateforme (communes, lieux-dits, sommets, cols, forêts, lacs, adresses), limité aux départements cartographiés et classé pour la cueillette (lieux naturels avant les rues) ; les coordonnées GPS sont acceptées, même hors ligne.
 - **Clic sur la carte** : décomposition complète du score (essence dominante, altitude, pH, effet de chaque variable météo) et graphiques de pluie et de température du secteur (45 jours passés + prévision).
 - Sécurité : avertissement au premier lancement, confusions dangereuses par espèce, rappel des règles de cueillette.

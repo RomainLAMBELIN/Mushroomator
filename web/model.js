@@ -163,6 +163,38 @@ export function habitatLUTs(sp) {
   return { host, elev, ph };
 }
 
+/** Resemblance of each forest pixel to the places where the species was found (personal notebook): same forest type,
+ *  close elevation (σ 150 m) and soil pH (σ 0.6), within `radiusKm` of one of them, from 1 next to it down to 0.5 at the
+ *  edge. 0..1 (0: other forest type), NaN outside forest or out of reach. */
+export function similarityGrid(layers, spots, radiusKm = 25) {
+  const { nx, ny, res } = layers.grid;
+  const out = new Float32Array(nx * ny).fill(NaN);
+  for (const s of spots) {
+    const rc = pixelOf(layers.grid, s.lat, s.lon);
+    if (!rc) continue;
+    const [r0, c0] = rc, p0 = r0 * nx + c0, g0 = layers.host[p0];
+    if (!g0) continue;                                      // spot outside the mapped forest formations
+    const z0 = layers.elev[p0] === 65535 ? NaN : layers.elev[p0];
+    const ph0 = layers.ph10[p0] ? layers.ph10[p0] / 10 : NaN;
+    const R = Math.ceil(radiusKm * 1000 / (res * Math.cos(s.lat * Math.PI / 180)));   // Mercator pixels
+    for (let r = Math.max(0, r0 - R); r <= Math.min(ny - 1, r0 + R); r++) {
+      for (let c = Math.max(0, c0 - R); c <= Math.min(nx - 1, c0 + R); c++) {
+        const d2 = ((r - r0) ** 2 + (c - c0) ** 2) / (R * R);
+        const p = r * nx + c, g = layers.host[p];
+        if (d2 > 1 || !g) continue;
+        if (g !== g0) { if (Number.isNaN(out[p])) out[p] = 0; continue; }
+        let v = 1 - 0.5 * d2;
+        const z = layers.elev[p] === 65535 ? NaN : layers.elev[p];
+        const ph = layers.ph10[p] ? layers.ph10[p] / 10 : NaN;
+        if (Number.isFinite(z) && Number.isFinite(z0)) v *= Math.exp(-(((z - z0) / 150) ** 2));
+        if (Number.isFinite(ph) && Number.isFinite(ph0)) v *= Math.exp(-(((ph - ph0) / 0.6) ** 2));
+        if (!(out[p] >= v)) out[p] = v;
+      }
+    }
+  }
+  return out;
+}
+
 /** Value of every pixel for a layer: "habitat" (H), "meteo" (conditions percentile where H >= minH) or
  *  "indice" (H × conditions). Pixels without forest formation get NaN. */
 export function computeGrid(sp, layers, fields, wts, mode, minH = 0.15, step = 1) {

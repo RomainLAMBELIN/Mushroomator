@@ -69,7 +69,7 @@ Attente réaliste : passer de « toute la forêt se vaut » à « ces parcelles 
 | Étape | Contenu | Décision ou critère |
 |---|---|---|
 | 1. Expérience | Extraire LiDAR HD et relief fin autour des observations précises françaises et du groupe cible ; comparer l'AUC de l'habitat avec et sans ces variables | **fait le 25/10/2026** : pas de gain pour le cèpe et la girolle ([section 8.7](#87-résultats-des-essais-du-25102026)) |
-| 2. Carnet et coins semblables | Dans l'application : sorties notées sur le téléphone, export possible, carte des endroits qui ressemblent à vos coins | **priorité** : utile dès quelques coins connus |
+| 2. Carnet et coins semblables | Dans l'application : sorties notées sur le téléphone, export possible, carte des endroits qui ressemblent à vos coins | **fait le 25/10/2026** (première version : ressemblance par type de peuplement, altitude et pH à 250 m, × conditions du jour ; taux de réussite selon l'indice dès 10 sorties) |
 | 3. Habitat à 25 m dans l'application | Tuiles d'habitat précalculées par espèce, chargées à la demande et gardées hors ligne | abandonné tant que les variables fines n'apportent rien (sauf pour les morilles) |
 | 4. Apprentissage européen | Si l'étape 1 montre que les variables fines aident mais que les données françaises manquent | sans objet : les variables fines n'aident pas |
 | 5. Calibration | Après une saison de sorties notées | indice exprimé en probabilité de trouver |

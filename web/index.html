@@ -36,6 +36,7 @@
       <button role="radio" data-mode="indice" aria-checked="true">Indice</button>
       <button role="radio" data-mode="habitat" aria-checked="false">Habitat</button>
       <button role="radio" data-mode="meteo" aria-checked="false">Conditions</button>
+      <button role="radio" data-mode="semblables" aria-checked="false">Semblables</button>
     </div>
   </header>
 
@@ -84,6 +85,43 @@
     <p class="small" id="about-sources"></p>
     <p class="small muted" id="about-version"></p>
   </aside>
+
+  <aside class="card panel" id="carnet" hidden>
+    <button class="icon-btn close" data-close="carnet" aria-label="Fermer">×</button>
+    <h2>Carnet de sorties</h2>
+    <p class="small muted">Gardé sur ce téléphone uniquement : rien n'est envoyé. Pensez à l'exporter de temps en temps.</p>
+    <form id="carnet-form" class="carnet-form">
+      <div class="field">
+        <span>Lieu : touchez la carte ou</span>
+        <div class="row">
+          <button type="button" id="carnet-gps" class="chip">◎ Ma position</button>
+          <span id="carnet-lieu" class="small muted">aucun lieu choisi</span>
+        </div>
+      </div>
+      <label class="field"><span>Espèce</span><select id="carnet-sp"></select></label>
+      <div class="segmented" role="radiogroup" aria-label="Résultat de la sortie" id="carnet-res">
+        <button type="button" role="radio" data-res="trouve" aria-checked="true">Trouvé</button>
+        <button type="button" role="radio" data-res="rien" aria-checked="false">Rien trouvé</button>
+      </div>
+      <div class="row">
+        <label class="field grow" id="carnet-qte-field"><span>Quantité</span>
+          <select id="carnet-qte"><option value="quelques">Quelques-uns</option><option value="panier">Un panier</option><option value="beaucoup">Beaucoup</option></select></label>
+        <label class="field grow"><span>Date</span><input id="carnet-date" type="date"></label>
+      </div>
+      <label class="field"><span>Note (facultatif)</span><input id="carnet-note" type="text" maxlength="200" placeholder="sous les hêtres, talus moussu…"></label>
+      <button type="submit" class="primary">Enregistrer la sortie</button>
+    </form>
+    <h3>Bilan</h3>
+    <div id="carnet-stats" class="small"></div>
+    <h3>Sorties</h3>
+    <ul id="carnet-list" class="carnet-list"></ul>
+    <div class="row">
+      <button type="button" id="carnet-export" class="chip">Exporter</button>
+      <label class="chip">Importer<input id="carnet-import" type="file" accept="application/json,.json" hidden></label>
+    </div>
+  </aside>
+
+  <div id="toast" class="toast" role="status" hidden></div>
 
   <div id="safety" class="modal" hidden>
     <div class="card">

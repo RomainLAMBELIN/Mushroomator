@@ -7,10 +7,12 @@ const MODES = {
   indice: "Indice = habitat × conditions météo (100 : habitat idéal et journée parmi les meilleures de la saison).",
   habitat: "Habitat : arbres-hôtes, altitude et pH du sol (indépendant de la météo).",
   meteo: "Conditions : météo des semaines précédentes comparée aux jours habituels de la saison (là où l'habitat convient).",
+  semblables: "Semblables : endroits qui ressemblent à vos coins productifs (même peuplement, altitude et sol proches, 25 km autour) × conditions du jour.",
 };
 const DAY_FMT = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 const SHORT_FMT = new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric" });
 const UPDATE_FMT = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
+const LIST_FMT = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 
 const state = { mode: "indice", sp: 0, day: 0, opacity: 0.8 };
 let D;                 // loaded data
@@ -106,7 +108,8 @@ function initMap() {
   const chosen = store.get("base", "Plan IGN");
   (bases[chosen] || bases["Plan IGN"]).addTo(map);
   L.control.zoom({ position: "topright" }).addTo(map);
-  L.control.layers(bases, null, { position: "topright" }).addTo(map);
+  notebook.layer = L.layerGroup().addTo(map);
+  L.control.layers(bases, { "Mes sorties": notebook.layer }, { position: "topright" }).addTo(map);
   map.on("baselayerchange", (ev) => store.set("base", ev.name));
   map.attributionControl.addAttribution('Météo <a href="https://open-meteo.com/">Open-Meteo</a> · Forêts IGN BD Forêt');
   const Locate = L.Control.extend({
@@ -119,7 +122,18 @@ function initMap() {
     },
   });
   new Locate().addTo(map);
+  const Notebook = L.Control.extend({
+    options: { position: "topright" },
+    onAdd() {
+      const b = L.DomUtil.create("button", "carnet-btn leaflet-bar");
+      b.type = "button"; b.title = "Carnet de sorties"; b.setAttribute("aria-label", "Carnet de sorties"); b.textContent = "📓";
+      L.DomEvent.on(b, "click", (ev) => { L.DomEvent.stop(ev); openNotebook(); });
+      return b;
+    },
+  });
+  new Notebook().addTo(map);
   map.on("locationfound", (ev) => {
+    lastFix = ev.latlng;
     if (marker) marker.remove();
     marker = L.circleMarker(ev.latlng, { radius: 7, color: "#fff", weight: 2, fillColor: "#2a78d6", fillOpacity: 1 }).addTo(map);
   });
@@ -132,7 +146,10 @@ function initMap() {
   pixels = new Uint32Array(image.data.buffer);
   overlay = new CanvasOverlay(canvas, [[s, w], [n, e]], { opacity: state.opacity, interactive: false, className: "heat" });
   overlay.addTo(map);
-  map.on("click", (ev) => { if (Date.now() - search.closedAt > 500) showDetails(ev.latlng); });
+  map.on("click", (ev) => {
+    if (Date.now() - search.closedAt <= 500) return;
+    if (!$("carnet").hidden) setEntryPlace(ev.latlng); else showDetails(ev.latlng);
+  });
 }
 
 // ------------------------------------------------------------------ place search ----
@@ -287,17 +304,237 @@ function initSearch() {
   });
 }
 
+// --------------------------------------------------------------------- notebook ----
+// Outings noted on this phone only (local storage), exportable as a file; nothing is sent anywhere. The "rien trouvé"
+// outings are the absences that public data lack: they will tell how reliable the map is for its user.
+const notebook = { entries: store.get("carnet", []), layer: null, markers: new Map(), place: null, pin: null, res: "trouve" };
+const RES_TEXT = { trouve: "Trouvé", rien: "Rien trouvé" };
+const QTE_TEXT = { quelques: "quelques-uns", panier: "un panier", beaucoup: "beaucoup" };
+const NO_SPOT = "Notez dans le carnet (📓) au moins un endroit en forêt où vous avez trouvé cette espèce.";
+let lastFix = null, simCache = { key: "", grid: null, spots: 0 }, toastTimer = 0;
+
+function toast(text) {
+  const t = $("toast");
+  t.textContent = text;
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 3500);
+}
+
+const speciesByKey = (key) => D.species.find((s) => s.key === key);
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+// Resemblance to the places where the species was found, recomputed only when those places change.
+function similarity(sp) {
+  const spots = notebook.entries.filter((e) => e.sp === sp.key && e.res === "trouve");
+  const key = sp.key + "|" + spots.map((e) => e.id).join(",");
+  if (simCache.key !== key) {
+    const grid = M.similarityGrid(D.layers, spots);
+    simCache = { key, grid, spots: grid.some((v) => v > 0) ? spots.length : 0 };
+  }
+  return simCache;
+}
+
+// Index, habitat and conditions at that place on that day, when the weather of that day is loaded.
+function entryIndex(sp, lat, lon, date) {
+  const k = D.weather ? D.weather.dates.indexOf(date) : -1;
+  const rc = M.pixelOf(D.grid, lat, lon);
+  if (k < 0 || !rc || !D.layers.host[rc[0] * D.grid.nx + rc[1]]) return { indice: null, habitat: null, conditions: null };
+  const ex = M.explain(sp, D.layers, M.coarseFields(sp, D.weather, k), D.wts, rc[0], rc[1]);
+  return { indice: +ex.index.toFixed(3), habitat: +ex.habitat.H.toFixed(3), conditions: +ex.q.toFixed(3) };
+}
+
+function saveNotebook() {
+  store.set("carnet", notebook.entries);
+  drawNotebook();
+  if (state.mode === "semblables") render();
+}
+
+function drawNotebook() {
+  notebook.layer.clearLayers();
+  notebook.markers.clear();
+  for (const e of notebook.entries) {
+    const found = e.res === "trouve";
+    const m = L.circleMarker([e.lat, e.lon], { radius: 7, weight: 2, color: found ? "#ffffff" : "#5f5f5f",
+                                                fillColor: found ? "#2e7d32" : "#ffffff", fillOpacity: 1 });
+    m.bindPopup(() => entryPopup(e)).addTo(notebook.layer);
+    notebook.markers.set(e.id, m);
+  }
+  fillNotebookPanel();
+}
+
+function entryPopup(e) {
+  const div = document.createElement("div");
+  const sp = speciesByKey(e.sp);
+  const lines = [`${sp ? sp.nom : e.sp} · ${DAY_FMT.format(new Date(e.date + "T12:00:00"))}`,
+    RES_TEXT[e.res] + (e.res === "trouve" && e.qte ? ` (${QTE_TEXT[e.qte] ?? e.qte})` : ""),
+    e.indice != null ? `Indice ce jour-là : ${Math.round(e.indice * 100)}/100` : "", e.note || ""].filter(Boolean);
+  lines.forEach((t, i) => div.append(Object.assign(document.createElement(i ? "div" : "strong"), { textContent: t })));
+  const del = Object.assign(document.createElement("button"), { type: "button", className: "chip", textContent: "Supprimer" });
+  del.style.marginTop = "8px";
+  del.addEventListener("click", () => {
+    if (!confirm("Supprimer cette sortie du carnet ?")) return;
+    notebook.entries = notebook.entries.filter((x) => x.id !== e.id);
+    map.closePopup();
+    saveNotebook();
+  });
+  div.append(del);
+  return div;
+}
+
+function notebookStats() {
+  const E = notebook.entries;
+  if (!E.length) return ["Notez aussi les sorties où vous ne trouvez rien : ce sont elles qui permettront de mesurer la fiabilité de la carte pour vous."];
+  const found = E.filter((e) => e.res === "trouve").length;
+  const lines = [`${E.length} sortie${E.length > 1 ? "s" : ""}, dont ${found} fructueuse${found > 1 ? "s" : ""}.`];
+  const bySp = {};
+  for (const e of E) {
+    const t = (bySp[e.sp] ??= [0, 0]);
+    t[0]++;
+    if (e.res === "trouve") t[1]++;
+  }
+  lines.push(Object.entries(bySp).map(([k, [n, f]]) => `${speciesByKey(k)?.nom ?? k} : ${f} sur ${n}`).join(" · "));
+  const scored = E.filter((e) => e.indice != null);
+  if (scored.length >= 10) {
+    lines.push("Réussite selon l'indice du jour : " + [[0, 0.3, "moins de 30"], [0.3, 0.6, "30 à 60"], [0.6, 2, "60 et plus"]].map(([a, b, label]) => {
+      const g = scored.filter((e) => e.indice >= a && e.indice < b);
+      return `${label} : ${g.filter((e) => e.res === "trouve").length} sur ${g.length}`;
+    }).join(" · "));
+  } else {
+    const n = 10 - scored.length;
+    lines.push(`Encore ${n} sortie${n > 1 ? "s" : ""} notée${n > 1 ? "s" : ""} le jour même pour voir la réussite selon l'indice.`);
+  }
+  return lines;
+}
+
+function fillNotebookPanel() {
+  $("carnet-stats").replaceChildren(...notebookStats().map((t) => Object.assign(document.createElement("p"), { textContent: t })));
+  const sorted = [...notebook.entries].sort((a, b) => (b.date + b.cree).localeCompare(a.date + a.cree));
+  const items = sorted.slice(0, 100).map((e) => {
+    const li = document.createElement("li");
+    const found = e.res === "trouve";
+    li.append(Object.assign(document.createElement("span"), { className: found ? "ok" : "ko", textContent: found ? "✓ " : "✗ " }),
+      `${LIST_FMT.format(new Date(e.date + "T12:00:00"))} · ${speciesByKey(e.sp)?.nom ?? e.sp}${e.note ? ` · ${e.note}` : ""}`);
+    li.addEventListener("click", () => {
+      map.setView([e.lat, e.lon], Math.max(map.getZoom(), 15));
+      notebook.markers.get(e.id)?.openPopup();
+    });
+    return li;
+  });
+  $("carnet-list").replaceChildren(...(items.length ? items : [Object.assign(document.createElement("li"), { textContent: "Aucune sortie notée pour l'instant." })]));
+}
+
+function openNotebook() {
+  $("details").hidden = true;
+  $("about").hidden = true;
+  $("carnet").hidden = false;
+  const select = $("carnet-sp");
+  if (!select.options.length) D.species.forEach((s) => select.add(new Option(s.nom, s.key)));
+  select.value = D.species[state.sp].key;
+  $("carnet-date").value = localToday();
+  if (!notebook.place && lastFix) setEntryPlace(lastFix);
+  fillNotebookPanel();
+}
+
+function setEntryPlace(latlng) {
+  notebook.place = L.latLng(latlng);
+  $("carnet-lieu").textContent = `${notebook.place.lat.toFixed(5)}, ${notebook.place.lng.toFixed(5)}`;
+  if (notebook.pin) notebook.pin.setLatLng(notebook.place);
+  else notebook.pin = L.marker(notebook.place, { interactive: false, opacity: 0.85 }).addTo(map);
+}
+
+function setResult(res) {
+  notebook.res = res;
+  document.querySelectorAll("#carnet-res button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.res === res)));
+  $("carnet-qte-field").hidden = res !== "trouve";
+}
+
+function saveEntry(ev) {
+  ev.preventDefault();
+  if (!notebook.place) { toast("Touchez la carte ou utilisez votre position pour placer la sortie."); return; }
+  const sp = speciesByKey($("carnet-sp").value);
+  const date = $("carnet-date").value || localToday();
+  const { lat, lng } = notebook.place;
+  notebook.entries.push({ id: newId(), date, cree: new Date().toISOString(), lat: +lat.toFixed(6), lon: +lng.toFixed(6), sp: sp.key,
+                          res: notebook.res, qte: notebook.res === "trouve" ? $("carnet-qte").value : null,
+                          note: $("carnet-note").value.trim().slice(0, 200), ...entryIndex(sp, lat, lng, date) });
+  saveNotebook();
+  $("carnet-note").value = "";
+  toast(notebook.res === "trouve" ? "Sortie enregistrée : bravo !" : "Sortie enregistrée.");
+}
+
+function exportNotebook() {
+  const data = { application: "Mushroomator", version: 1, exporte: new Date().toISOString(), sorties: notebook.entries };
+  const a = Object.assign(document.createElement("a"), {
+    href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: "application/json" })),
+    download: `carnet-mushroomator-${localToday()}.json` });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+async function importNotebook(ev) {
+  const file = ev.target.files[0];
+  ev.target.value = "";
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const known = new Set(notebook.entries.map((e) => e.id));
+    const num = (v) => (Number.isFinite(v) ? v : null);
+    const rows = (Array.isArray(data) ? data : data.sorties || []).filter((e) => e && Number.isFinite(e.lat) && Number.isFinite(e.lon)
+      && (e.res === "trouve" || e.res === "rien") && typeof e.sp === "string" && /^\d{4}-\d{2}-\d{2}$/.test(e.date || "")
+      && !known.has(String(e.id)));
+    notebook.entries.push(...rows.map((e) => ({ id: String(e.id ?? newId()), date: e.date, cree: String(e.cree ?? new Date().toISOString()),
+      lat: e.lat, lon: e.lon, sp: e.sp, res: e.res, qte: QTE_TEXT[e.qte] ? e.qte : null, note: String(e.note ?? "").slice(0, 200),
+      indice: num(e.indice), habitat: num(e.habitat), conditions: num(e.conditions) })));
+    saveNotebook();
+    toast(`${rows.length} sortie${rows.length > 1 ? "s" : ""} importée${rows.length > 1 ? "s" : ""}.`);
+  } catch {
+    toast("Fichier illisible.");
+  }
+}
+
+function wireNotebook() {
+  $("carnet-form").addEventListener("submit", saveEntry);
+  document.querySelectorAll("#carnet-res button").forEach((b) => b.addEventListener("click", () => setResult(b.dataset.res)));
+  $("carnet-gps").addEventListener("click", () => {
+    if (!navigator.geolocation) { toast("Position indisponible."); return; }
+    toast("Recherche de votre position…");
+    navigator.geolocation.getCurrentPosition((pos) => {
+      lastFix = L.latLng(pos.coords.latitude, pos.coords.longitude);
+      setEntryPlace(lastFix);
+      map.setView(lastFix, Math.max(map.getZoom(), 15));
+    }, () => toast("Position indisponible."), { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+  });
+  document.querySelector('[data-close="carnet"]').addEventListener("click", () => {
+    notebook.pin?.remove();
+    notebook.pin = notebook.place = null;
+    $("carnet-lieu").textContent = "aucun lieu choisi";
+  });
+  $("carnet-export").addEventListener("click", exportNotebook);
+  $("carnet-import").addEventListener("change", importNotebook);
+}
+
 function render() {
   const sp = D.species[state.sp];
   const fields = state.mode === "habitat" || !D.weather ? null : M.coarseFields(sp, D.weather, state.day);
-  const mode = fields ? state.mode : "habitat";
-  const values = M.computeGrid(sp, D.layers, fields, D.wts, mode);
+  const mode = state.mode === "semblables" ? "semblables" : fields ? state.mode : "habitat";
+  let values, note = D.weather ? "" : " Météo indisponible : seul l'habitat est affiché.";
+  if (mode === "semblables") {
+    const sim = similarity(sp);
+    const q = fields ? M.computeGrid(sp, D.layers, fields, D.wts, "meteo", 0) : null;
+    values = q ? sim.grid.map((v, p) => v * q[p]) : sim.grid;
+    if (!sim.spots) note = " " + NO_SPOT;
+  } else {
+    values = M.computeGrid(sp, D.layers, fields, D.wts, mode);
+  }
   for (let p = 0; p < values.length; p++) {
     const v = values[p];
     pixels[p] = v === v ? palette[Math.max(0, Math.min(255, Math.round(v * 255)))] : 0;
   }
   ctx.putImageData(image, 0, 0);
-  $("legend-text").textContent = MODES[mode] + (D.weather ? "" : " Météo indisponible : seul l'habitat est affiché.");
+  $("legend-text").textContent = MODES[mode] + note;
 }
 
 function dayLabel(iso) {
@@ -416,6 +653,10 @@ function showDetails(latlng) {
   } else {
     html += `<h3>Habitat : ${fmt(hab.H * 100)}/100</h3><p>${groupName}, ${fmt(hab.elev)} m, pH ${fmt(hab.ph, 1)}.</p>`;
   }
+  if (state.mode === "semblables") {
+    const v = similarity(sp).grid[p];
+    html += `<p class="small"><strong>Ressemblance à vos coins :</strong> ${Number.isFinite(v) ? `${Math.round(v * 100)}/100` : "hors de portée de vos coins"}</p>`;
+  }
   html += `<p class="warning small"><strong>Confusions dangereuses :</strong> ${sp.confusions}</p>`;
   html += `<p class="small"><a href="https://www.geoportail.gouv.fr/carte?c=${latlng.lng},${latlng.lat}&z=15&l0=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2::GEOPORTAIL:OGC:WMTS(1)&permalink=yes" target="_blank" rel="noopener">Ouvrir dans Géoportail</a></p>`;
   $("details-body").innerHTML = html;
@@ -498,6 +739,7 @@ async function init() {
   palette = buildPalette();
   $("ramp").style.background = `linear-gradient(to right, ${RAMP.map(([v, c]) => `rgb(${c.join(",")}) ${v * 100}%`).join(", ")})`;
   initMap();
+  drawNotebook();
   initSearch();
   wireUI();
   setMode(state.mode);
@@ -510,9 +752,10 @@ async function init() {
 
 function setMode(mode) {
   state.mode = mode;
-  document.querySelectorAll(".segmented button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.mode === mode)));
+  document.querySelectorAll("#top .segmented button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.mode === mode)));
   store.set("mode", mode);
   render();
+  if (mode === "semblables" && !similarity(D.species[state.sp]).spots) toast(NO_SPOT);
 }
 
 function wireUI() {
@@ -522,7 +765,7 @@ function wireUI() {
     render(); buildDayStrip(); updateDayUI();
     if (!$("details").hidden) $("details").hidden = true;
   });
-  document.querySelectorAll(".segmented button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  document.querySelectorAll("#top .segmented button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
   let pending = 0;
   $("day").addEventListener("input", (ev) => {
     state.day = Number(ev.target.value);
@@ -535,6 +778,7 @@ function wireUI() {
   document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => { $(b.dataset.close).hidden = true; }));
   $("about-btn").addEventListener("click", () => { $("about").hidden = false; });
   $("safety-ok").addEventListener("click", () => { $("safety").hidden = true; store.set("safety-ok", true); });
+  wireNotebook();
 }
 
 // Offline mode, registered after the first load: the worker then copies the files from the HTTP cache
